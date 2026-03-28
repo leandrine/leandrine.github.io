@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Eagle Aerodynamics • Obfuscated C Code in Euclidean Geometric Plot</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=VT323&amp;display=swap');
+        
+        body {
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(180deg, #0a1f3a 0%, #1a3a5f 100%);
+            color: #00ffcc;
+            font-family: 'VT323', monospace;
+            overflow: hidden;
+        }
+        
+        header {
+            text-align: center;
+            padding: 20px;
+            background: rgba(0, 255, 204, 0.1);
+            border-bottom: 3px solid #00ffcc;
+            box-shadow: 0 0 30px #00ffcc;
+        }
+        
+        h1 {
+            font-size: 2.8rem;
+            margin: 0;
+            text-shadow: 0 0 20px #00ffcc;
+            letter-spacing: 4px;
+        }
+        
+        .subtitle {
+            font-size: 1.4rem;
+            margin: 8px 0 0;
+            opacity: 0.9;
+        }
+        
+        .container {
+            display: flex;
+            flex-wrap: wrap;
+            max-width: 1200px;
+            margin: 30px auto;
+            padding: 0 20px;
+            gap: 30px;
+        }
+        
+        .canvas-container {
+            flex: 1;
+            min-width: 800px;
+            background: #001122;
+            border: 4px solid #00ffcc;
+            box-shadow: 0 0 40px #00ffcc;
+            padding: 15px;
+            border-radius: 12px;
+            position: relative;
+        }
+        
+        canvas {
+            width: 100%;
+            height: 100%;
+            display: block;
+            image-rendering: crisp-edges;
+        }
+        
+        .code-panel {
+            flex: 1;
+            min-width: 360px;
+            background: #001122;
+            border: 4px solid #00ffcc;
+            box-shadow: 0 0 40px #00ffcc;
+            padding: 20px;
+            border-radius: 12px;
+            font-size: 1.1rem;
+            line-height: 1.4;
+            overflow: auto;
+            max-height: 600px;
+            white-space: pre;
+            color: #ffcc00;
+        }
+        
+        .controls {
+            position: absolute;
+            top: 25px;
+            right: 25px;
+            background: rgba(0, 17, 34, 0.9);
+            padding: 12px;
+            border-radius: 8px;
+            border: 2px solid #00ffcc;
+            display: flex;
+            gap: 12px;
+            z-index: 10;
+        }
+        
+        button {
+            background: #001122;
+            color: #00ffcc;
+            border: 2px solid #00ffcc;
+            padding: 8px 16px;
+            font-family: 'VT323', monospace;
+            font-size: 1.3rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        button:hover {
+            background: #00ffcc;
+            color: #001122;
+            box-shadow: 0 0 20px #00ffcc;
+        }
+        
+        .math-legend {
+            position: absolute;
+            bottom: 25px;
+            left: 25px;
+            background: rgba(0, 17, 34, 0.85);
+            padding: 15px;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            line-height: 1.6;
+            border: 2px solid #00ffcc;
+            max-width: 320px;
+        }
+        
+        footer {
+            text-align: center;
+            padding: 15px;
+            font-size: 1.2rem;
+            opacity: 0.7;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>🦅 EAGLE AERODYNAMICS</h1>
+        <div class="subtitle">Obfuscated C Code Plotted in Euclidean Geometric Format</div>
+        <div style="font-size:1.3rem; margin-top:10px;">Advanced Calculus Representation • Lift • Drag • Thermal Spirals</div>
+    </header>
+
+    <div class="container">
+        <!-- Canvas Container -->
+        <div class="canvas-container">
+            <canvas id="eagleCanvas" width="820" height="620"></canvas>
+            
+            <!-- Floating controls -->
+            <div class="controls">
+                <button onclick="resetAnimation()">RESET FLIGHT</button>
+                <button onclick="togglePause()">⏸️ PAUSE</button>
+                <button onclick="changeObfuscation()">NEW OBFUSCATION</button>
+            </div>
+            
+            <!-- Math legend on canvas -->
+            <div class="math-legend">
+                <strong>Advanced Calculus Model</strong><br>
+                r(θ) = 5θ + 30·sin(3θ)  (Archimedean spiral + vortex shedding)<br>
+                x(θ) = 410 + r(θ)·cos(θ)<br>
+                y(θ) = 310 + r(θ)·sin(θ) − 2θ  (net lift from Kutta-Joukowski)<br>
+                <span style="color:#ff9900;">d²y/dt² = L − mg − D  (eagle soaring ODE)</span><br>
+                <small>Plotted obfuscated C code characters follow the exact aerodynamic trajectory</small>
+            </div>
+        </div>
+
+        <!-- Original Obfuscated C Code Panel -->
+        <div class="code-panel" id="codePanel">
+#include &lt;stdio.h&gt;
+#define _O(x) x##x
+#define _E(a) a()
+int _O(m)() { 
+    for(int i=0;;i++) {
+        printf("%c", "ObfuscatedCCodeForEagleAerodynamics"[i%32]);
+        if(i&gt;999) return 0;
+    }
+}
+int main(){_E(_O(m));}
+        </div>
+    </div>
+
+    <footer>
+        Pure vanilla JavaScript • HTML5 Canvas • Real-time parametric Euclidean plot • 
+        Obfuscated C code characters are positioned using the exact calculus-derived eagle flight path
+    </footer>
+
+    <script>
+        // =============================================
+        // FULLY SELF-CONTAINED INDEX.HTML JAVASCRIPT
+        // Plots obfuscated C code as Euclidean geometry
+        // using advanced calculus eagle aerodynamics
+        // =============================================
+
+        const canvas = document.getElementById('eagleCanvas');
+        const ctx = canvas.getContext('2d', { alpha: true });
+        
+        // Current obfuscated C code string (will be plotted char-by-char)
+        let currentCode = `#include <stdio.h>
+#define _O(x) x##x
+#define _E(a) a()
+int _O(m)() { 
+    for(int i=0;;i++) {
+        printf("%c", "ObfuscatedCCodeForEagleAerodynamics"[i%32]);
+        if(i>999) return 0;
+    }
+}
+int main(){_E(_O(m));}`;
+        
+        let chars = [];
+        let animationProgress = 0;
+        let isPaused = false;
+        let animationFrame = null;
+        
+        // Parametric function for eagle aerodynamics (advanced calculus)
+        function getAerodynamicPoint(theta) {
+            // r(θ) = aθ + b·sin(kθ) → Archimedean spiral + vortex-induced oscillation
+            // (models thermal lift + wing-tip vortices of Aquila chrysaetos)
+            const a = 5.2;                    // thermal expansion rate
+            const b = 32;                     // vortex amplitude
+            const k = 3.1;                    // flapping frequency (≈3 beats per spiral)
+            
+            const r = a * theta + b * Math.sin(k * theta);
+            
+            // Euclidean coordinates (Cartesian)
+            const x = 410 + r * Math.cos(theta);
+            
+            // y includes glide component from integrated ODE: dv_y/dt = (Lift - Drag - mg)/m
+            // simplified closed-form solution used here
+            const y = 310 + r * Math.sin(theta) - 2.1 * theta;
+            
+            return { x, y, theta };
+        }
+        
+        // Calculate tangent angle for character rotation (realistic flight orientation)
+        function getTangentAngle(theta) {
+            // Numerical derivative of position vector
+            const dt = 0.01;
+            const p1 = getAerodynamicPoint(theta);
+            const p2 = getAerodynamicPoint(theta + dt);
+            const dx = p2.x - p1.x;
+            const dy = p2.y - p1.y;
+            return Math.atan2(dy, dx);
+        }
+        
+        function drawFrame(progress) {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            // Sky gradient background
+            const sky = ctx.createLinearGradient(0, 0, 0, canvas.height);
+            sky.addColorStop(0, '#0a1f3a');
+            sky.addColorStop(1, '#1a3a5f');
+            ctx.fillStyle = sky;
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            // Horizon glow (eagle soaring altitude)
+            ctx.fillStyle = 'rgba(255, 240, 100, 0.15)';
+            ctx.fillRect(0, 380, canvas.width, canvas.height - 380);
+            
+            // Euclidean axes (faint)
+            ctx.strokeStyle = 'rgba(0, 255, 204, 0.3)';
+            ctx.lineWidth = 2;
+            // X-axis (horizontal flight)
+            ctx.beginPath();
+            ctx.moveTo(50, 310);
+            ctx.lineTo(770, 310);
+            ctx.stroke();
+            ctx.fillStyle = '#00ffcc';
+            ctx.font = '18px VT323';
+            ctx.fillText('Euclidean X (ground track)', 620, 340);
+            
+            // Y-axis (altitude)
+            ctx.beginPath();
+            ctx.moveTo(410, 50);
+            ctx.lineTo(410, 570);
+            ctx.stroke();
+            ctx.fillText('Y (altitude)', 340, 70);
+            
+            // Draw the full aerodynamic trajectory path (progressively revealed)
+            const maxTheta = 14 * Math.PI;   // ~7 full spirals (eagle thermal soaring)
+            const pointsToDraw = Math.floor(280 * progress);
+            
+            ctx.strokeStyle = '#00ffcc';
+            ctx.lineWidth = 4.5;
+            ctx.shadowBlur = 25;
+            ctx.shadowColor = '#00ffcc';
+            
+            ctx.beginPath();
+            let firstPoint = true;
+            
+            for (let i = 0; i <= pointsToDraw; i++) {
+                const theta = (i / 280) * maxTheta;
+                const p = getAerodynamicPoint(theta);
+                
+                if (firstPoint) {
+                    ctx.moveTo(p.x, p.y);
+                    firstPoint = false;
+                } else {
+                    ctx.lineTo(p.x, p.y);
+                }
+            }
+            ctx.stroke();
+            
+            // Reset shadow for text
+            ctx.shadowBlur = 0;
+            
+            // Plot obfuscated C code characters along the exact path
+            const numChars = chars.length;
+            const thetaStep = maxTheta / Math.max(numChars, 1);
+            
+            ctx.fillStyle = '#ffcc00';
+            ctx.font = 'bold 19px VT323';
+            ctx.textBaseline = 'middle';
+            ctx.textAlign = 'center';
+            
+            for (let i = 0; i < numChars; i++) {
+                // Only draw characters that have been "flown over" by the animation progress
+                if (i / numChars > progress) break;
+                
+                const charTheta = i * thetaStep;
+                const p = getAerodynamicPoint(charTheta);
+                const angle = getTangentAngle(charTheta);
+                
+                ctx.save();
+                ctx.translate(p.x, p.y);
+                ctx.rotate(angle + Math.PI / 2);   // align text with flight direction
+                
+                // Subtle glow per character
+                ctx.shadowBlur = 12;
+                ctx.shadowColor = '#ffcc00';
+                ctx.fillText(chars[i], 0, 0);
+                ctx.restore();
+            }
+            
+            // Eagle silhouette at current head of the path (leading edge)
+            const headTheta = progress * maxTheta;
+            const head = getAerodynamicPoint(headTheta);
+            ctx.save();
+            ctx.translate(head.x + 12, head.y - 8);
+            ctx.rotate(getTangentAngle(headTheta));
+            
+            // Simple eagle wing shape
+            ctx.fillStyle = '#ff9900';
+            ctx.strokeStyle = '#00ffcc';
+            ctx.lineWidth = 3;
+            // Body
+            ctx.fillRect(-12, -8, 28, 16);
+            // Wings (dynamic)
+            ctx.beginPath();
+            ctx.moveTo(-8, -8);
+            ctx.quadraticCurveTo(-45, -35 - Math.sin(Date.now()/200)*8, -55, 0);
+            ctx.quadraticCurveTo(-45, 35 + Math.sin(Date.now()/200)*8, -8, 8);
+            ctx.fill();
+            ctx.stroke();
+            ctx.restore();
+            
+            // Title overlay
+            ctx.fillStyle = '#00ffcc';
+            ctx.font = 'bold 28px VT323';
+            ctx.shadowBlur = 30;
+            ctx.shadowColor = '#00ffcc';
+            ctx.fillText('OBFUSCATED C → EUCLIDEAN EAGLE FLIGHT', 410, 38);
+            ctx.shadowBlur = 0;
+            
+            // Progress indicator
+            ctx.fillStyle = '#ffcc00';
+            ctx.font = '22px VT323';
+            ctx.fillText(`PROGRESS: ${(progress*100).toFixed(0)}%`, 620, 580);
+        }
+        
+        function animate() {
+            if (!isPaused) {
+                animationProgress += 0.0042;   // smooth eagle-speed animation
+                
+                if (animationProgress >= 1.05) {
+                    animationProgress = 1.05;   // hold at end for a moment
+                    setTimeout(() => {
+                        if (!isPaused) resetAnimation();
+                    }, 1800);
+                }
+                
+                drawFrame(Math.min(animationProgress, 1));
+            }
+            
+            animationFrame = requestAnimationFrame(animate);
+        }
+        
+        function resetAnimation() {
+            animationProgress = 0;
+            drawFrame(0);
+        }
+        
+        function togglePause() {
+            isPaused = !isPaused;
+            const btns = document.querySelectorAll('button');
+            if (isPaused) {
+                btns[1].textContent = '▶️ RESUME';
+            } else {
+                btns[1].textContent = '⏸️ PAUSE';
+            }
+        }
+        
+        function changeObfuscation() {
+            // Generate a fresh obfuscated C code variant each time
+            const variants = [
+                `#include<stdio.h>
+#define _(_) main(){for(int i=0;i<999;i++)printf("%c","EAGLEAERODYNAMICSCODE"[i%18]);}`,
+                `#define P(x) x##x int P(m)(){puts("Obfuscated eagle calculus");}`,
+                `int(*f)()=main;main(){printf("C→Euclidean eagle lift");f();}`,
+                `#include <stdio.h>
+int main(){char*s="OBFUSCATEDC";for(int i=0;s[i];i++)putchar(s[i]);}`
+            ];
+            
+            currentCode = variants[Math.floor(Math.random() * variants.length)];
+            
+            // Update visible code panel
+            document.getElementById('codePanel').textContent = currentCode;
+            
+            // Refresh characters for plotting
+            chars = currentCode.split('');
+            
+            // Restart flight
+            resetAnimation();
+        }
+        
+        // Initialize everything
+        function initialize() {
+            // Prepare initial characters
+            chars = currentCode.split('');
+            
+            // First draw (static frame 0)
+            drawFrame(0);
+            
+            // Start the soaring animation
+            animate();
+            
+            console.log('%c✅ Eagle aerodynamics obfuscated C code visualizer loaded successfully', 'color:#00ffcc; font-family:VT323; font-size:18px');
+        }
+        
+        // Launch the full experience
+        window.onload = initialize;
+    </script>
+</body>
+</html>
