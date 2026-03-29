@@ -9,11 +9,12 @@
         
         body {
             margin: 0;
-            padding: 0;
-            background: linear-gradient(180deg, #0a1f3a 0%, #1a3a5f 100%);
-            color: #00ffcc;
-            font-family: 'VT323', monospace;
-            overflow: hidden;
+        padding: 0;
+        background: linear-gradient(180deg, #0a1f3a 0%, #1a3a5f 100%);
+        color: #00ffcc;
+        font-family: 'VT323', monospace;
+        overflow-y: auto; /* FIXED: Changed from hidden to auto */
+        min-height: 100vh;
         }
         
         header {
