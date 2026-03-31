@@ -3,478 +3,55 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>EAGLE vs DOVE • Turbulence Vortex Simulation</title>
+    <title>Image Viewer</title>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=VT323&amp;display=swap');
-        
         body {
             margin: 0;
-        padding: 0;
-        background: linear-gradient(180deg, #0a1f3a 0%, #1a3a5f 100%);
-        color: #00ffcc;
-        font-family: 'VT323', monospace;
-        overflow-y: auto; /* FIXED: Changed from hidden to auto */
-        min-height: 100vh;
-        }
-        
-        header {
-            text-align: center;
-            padding: 20px;
-            background: rgba(0, 255, 204, 0.1);
-            border-bottom: 3px solid #00ffcc;
-            box-shadow: 0 0 30px #00ffcc;
+            padding: 0;
+            background-color: #f4f4f4;
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
         }
         
         h1 {
-            font-size: 2.8rem;
-            margin: 0;
-            text-shadow: 0 0 20px #00ffcc;
-            letter-spacing: 4px;
+            color: #333;
+            margin-bottom: 20px;
         }
         
-        .subtitle {
-            font-size: 1.4rem;
-            margin: 8px 0 0;
-            opacity: 0.9;
+        .image-container {
+            max-width: 90%;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            background: white;
+            padding: 10px;
+            border-radius: 8px;
         }
         
-        .container {
-            display: flex;
-            flex-wrap: wrap;
-            max-width: 1200px;
-            margin: 30px auto;
-            padding: 0 20px;
-            gap: 30px;
-        }
-        
-        .canvas-container {
-            flex: 1;
-            min-width: 820px;
-            background: #001122;
-            border: 4px solid #00ffcc;
-            box-shadow: 0 0 40px #00ffcc;
-            padding: 15px;
-            border-radius: 12px;
-            position: relative;
-        }
-        
-        canvas {
-            width: 100%;
-            height: 100%;
+        img {
+            max-width: 100%;
+            height: auto;
             display: block;
-            image-rendering: crisp-edges;
+            border-radius: 4px;
         }
         
-        .code-panel {
-            flex: 1;
-            min-width: 360px;
-            background: #001122;
-            border: 4px solid #00ffcc;
-            box-shadow: 0 0 40px #00ffcc;
-            padding: 20px;
-            border-radius: 12px;
-            font-size: 1.1rem;
-            line-height: 1.4;
-            overflow: auto;
-            max-height: 600px;
-            white-space: pre;
-            color: #ffcc00;
-        }
-        
-        .controls {
-            position: absolute;
-            top: 25px;
-            right: 25px;
-            background: rgba(0, 17, 34, 0.9);
-            padding: 12px;
-            border-radius: 8px;
-            border: 2px solid #00ffcc;
-            display: flex;
-            gap: 12px;
-            z-index: 10;
-        }
-        
-        button {
-            background: #001122;
-            color: #00ffcc;
-            border: 2px solid #00ffcc;
-            padding: 8px 16px;
-            font-family: 'VT323', monospace;
-            font-size: 1.3rem;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-        
-        button:hover {
-            background: #00ffcc;
-            color: #001122;
-            box-shadow: 0 0 20px #00ffcc;
-        }
-        
-        .math-legend {
-            position: absolute;
-            bottom: 25px;
-            left: 25px;
-            background: rgba(0, 17, 34, 0.85);
-            padding: 15px;
-            border-radius: 8px;
-            font-size: 1.05rem;
-            line-height: 1.55;
-            border: 2px solid #00ffcc;
-            max-width: 340px;
-            box-shadow: 0 0 15px #ff9900;
-        }
-        
-        footer {
+        .caption {
             text-align: center;
-            padding: 15px;
-            font-size: 1.2rem;
-            opacity: 0.7;
+            margin-top: 15px;
+            color: #666;
+            font-style: italic;
         }
     </style>
 </head>
 <body>
-    <header>
-        <h1>🦅 EAGLE AERODYNAMICS vs 🕊️ DOVE</h1>
-        <div class="subtitle">Obfuscated C Code • Euclidean Plot • <span style="color:#ff9900;">ADVANCED TURBULENCE VORTEX SIMULATION</span></div>
-        <div style="font-size:1.3rem; margin-top:10px;">Eagle causes real-time vortex turbulence on opposing dove flight path</div>
-    </header>
-
-    <div class="container">
-        <!-- Canvas Container -->
-        <div class="canvas-container">
-            <canvas id="eagleCanvas" width="820" height="620"></canvas>
-            
-            <!-- Floating controls -->
-            <div class="controls">
-                <button onclick="resetAnimation()">RESET FLIGHT</button>
-                <button onclick="togglePause()">⏸️ PAUSE</button>
-                <button onclick="changeObfuscation()">NEW OBFUSCATION</button>
-                <button onclick="toggleTurbulence()">🌪️ TURBULENCE: <span id="turbLevel">NORMAL</span></button>
-            </div>
-            
-            <!-- Updated Math legend with turbulence calculus -->
-            <div class="math-legend" id="mathLegend">
-                <strong>Advanced Calculus Model</strong><br>
-                Eagle: r(θ) = 5.2θ + 32·sin(3.1θ)  (thermal + vortex shedding)<br>
-                Dove (opposite side): φ = −θ + π  (counter-rotating spiral)<br>
-                <span style="color:#ff9900">Turbulence (potential flow vortex):</span><br>
-                δ = [Γ/(2π·d)] · sin(18φ + ωt) · ⊥unit_vector<br>
-                <small>Γ = eagle circulation d = distance ω = high-frequency shedding<br>
-                Dove position perturbed in real-time by eagle wake</small>
-            </div>
-        </div>
-
-        <!-- Original Obfuscated C Code Panel -->
-        <div class="code-panel" id="codePanel">
-#include &lt;stdio.h&gt;
-#define _O(x) x##x
-#define _E(a) a()
-int _O(m)() { 
-    for(int i=0;;i++) {
-        printf("%c", "ObfuscatedCCodeForEagleAerodynamics"[i%32]);
-        if(i&gt;999) return 0;
-    }
-}
-int main(){_E(_O(m));}
-        </div>
+    <h1>Image: 20260328_122803.jpg</h1>
+    
+    <div class="image-container">
+        <img src="20260328_122803.jpg" alt="Photo taken on 2026-03-28 at 12:28:03">
     </div>
-
-    <footer>
-        Pure vanilla JavaScript • HTML5 Canvas • Real-time parametric Euclidean plot • 
-        Obfuscated C code follows eagle path • Dove flies opposite side with advanced vortex turbulence
-    </footer>
-
-    <script>
-        // =============================================
-        // UPDATED: Full self-contained index.html
-        // Now includes EAGLE causing TURBULENCE on DOVE
-        // using advanced calculus vortex model
-        // =============================================
-
-        const canvas = document.getElementById('eagleCanvas');
-        const ctx = canvas.getContext('2d', { alpha: true });
-        
-        let currentCode = `#include <stdio.h>
-#define _O(x) x##x
-#define _E(a) a()
-int _O(m)() { 
-    for(int i=0;;i++) {
-        printf("%c", "ObfuscatedCCodeForEagleAerodynamics"[i%32]);
-        if(i>999) return 0;
-    }
-}
-int main(){_E(_O(m));}`;
-        
-        let chars = [];
-        let animationProgress = 0;
-        let isPaused = false;
-        let animationFrame = null;
-        let turbulenceIntensity = 1.0;   // new: adjustable turbulence strength
-        
-        // Parametric aerodynamic function (same as before)
-        function getAerodynamicPoint(theta) {
-            const a = 5.2;
-            const b = 32;
-            const k = 3.1;
-            const r = a * theta + b * Math.sin(k * theta);
-            const x = 410 + r * Math.cos(theta);
-            const y = 310 + r * Math.sin(theta) - 2.1 * theta;
-            return { x, y, theta };
-        }
-        
-        function getTangentAngle(theta) {
-            const dt = 0.01;
-            const p1 = getAerodynamicPoint(theta);
-            const p2 = getAerodynamicPoint(theta + dt);
-            const dx = p2.x - p1.x;
-            const dy = p2.y - p1.y;
-            return Math.atan2(dy, dx);
-        }
-        
-        function drawFrame(progress) {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            
-            // Background
-            const sky = ctx.createLinearGradient(0, 0, 0, canvas.height);
-            sky.addColorStop(0, '#0a1f3a');
-            sky.addColorStop(1, '#1a3a5f');
-            ctx.fillStyle = sky;
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
-            
-            ctx.fillStyle = 'rgba(255, 240, 100, 0.15)';
-            ctx.fillRect(0, 380, canvas.width, canvas.height - 380);
-            
-            // Faint axes
-            ctx.strokeStyle = 'rgba(0, 255, 204, 0.3)';
-            ctx.lineWidth = 2;
-            ctx.beginPath();
-            ctx.moveTo(50, 310);
-            ctx.lineTo(770, 310);
-            ctx.stroke();
-            ctx.beginPath();
-            ctx.moveTo(410, 50);
-            ctx.lineTo(410, 570);
-            ctx.stroke();
-            ctx.fillStyle = '#00ffcc';
-            ctx.font = '18px VT323';
-            ctx.fillText('Euclidean X', 620, 340);
-            ctx.fillText('Y (altitude)', 340, 70);
-            
-            const maxTheta = 14 * Math.PI;
-            
-            // === EAGLE PATH (main solid path) ===
-            const pointsToDraw = Math.floor(280 * progress);
-            ctx.strokeStyle = '#00ffcc';
-            ctx.lineWidth = 4.5;
-            ctx.shadowBlur = 25;
-            ctx.shadowColor = '#00ffcc';
-            ctx.beginPath();
-            let first = true;
-            for (let i = 0; i <= pointsToDraw; i++) {
-                const theta = (i / 280) * maxTheta;
-                const p = getAerodynamicPoint(theta);
-                if (first) { ctx.moveTo(p.x, p.y); first = false; }
-                else ctx.lineTo(p.x, p.y);
-            }
-            ctx.stroke();
-            ctx.shadowBlur = 0;
-            
-            // === DOVE INTENDED PATH (opposite side - dashed, smooth) ===
-            ctx.strokeStyle = 'rgba(170, 204, 255, 0.7)';
-            ctx.lineWidth = 2.8;
-            ctx.setLineDash([6, 10]);
-            ctx.beginPath();
-            let doveFirst = true;
-            const dovePoints = Math.floor(280 * progress);
-            for (let i = 0; i <= dovePoints; i++) {
-                const dTheta = -(i / 280) * maxTheta + Math.PI;   // opposite direction + phase shift
-                const dp = getAerodynamicPoint(dTheta);
-                if (doveFirst) { ctx.moveTo(dp.x, dp.y); doveFirst = false; }
-                else ctx.lineTo(dp.x, dp.y);
-            }
-            ctx.stroke();
-            ctx.setLineDash([]);
-            
-            // === PLOT OBFUSCATED C CODE CHARACTERS along eagle path ===
-            const numChars = chars.length;
-            const thetaStep = maxTheta / Math.max(numChars, 1);
-            ctx.fillStyle = '#ffcc00';
-            ctx.font = 'bold 19px VT323';
-            ctx.textBaseline = 'middle';
-            ctx.textAlign = 'center';
-            for (let i = 0; i < numChars; i++) {
-                if (i / numChars > progress) break;
-                const charTheta = i * thetaStep;
-                const p = getAerodynamicPoint(charTheta);
-                const angle = getTangentAngle(charTheta);
-                ctx.save();
-                ctx.translate(p.x, p.y);
-                ctx.rotate(angle + Math.PI / 2);
-                ctx.shadowBlur = 12;
-                ctx.shadowColor = '#ffcc00';
-                ctx.fillText(chars[i], 0, 0);
-                ctx.restore();
-            }
-            
-            // === EAGLE at head of path ===
-            const headTheta = progress * maxTheta;
-            const eaglePos = getAerodynamicPoint(headTheta);
-            ctx.save();
-            ctx.translate(eaglePos.x + 12, eaglePos.y - 8);
-            ctx.rotate(getTangentAngle(headTheta));
-            ctx.fillStyle = '#ff9900';
-            ctx.strokeStyle = '#00ffcc';
-            ctx.lineWidth = 3;
-            ctx.fillRect(-12, -8, 28, 16);
-            const flapE = Math.sin(Date.now()/160) * 9;
-            ctx.beginPath();
-            ctx.moveTo(-8, -8);
-            ctx.quadraticCurveTo(-48, -38 - flapE, -58, 0);
-            ctx.quadraticCurveTo(-48, 32 + flapE, -8, 8);
-            ctx.fill();
-            ctx.stroke();
-            ctx.restore();
-            
-            // === DOVE with advanced turbulence perturbation ===
-            const doveBaseTheta = -progress * maxTheta * 0.85 + Math.PI;   // opposite side, slightly slower
-            let dovePos = getAerodynamicPoint(doveBaseTheta);
-            
-            // Calculate distance to eagle (for vortex influence)
-            const dx = dovePos.x - eaglePos.x;
-            const dy = dovePos.y - eaglePos.y;
-            const dist = Math.hypot(dx, dy);
-            
-            // ADVANCED CALCULUS TURBULENCE (potential flow vortex model)
-            if (dist < 230 && dist > 8) {
-                const vortexGamma = 38 * turbulenceIntensity;           // circulation strength
-                const vortexStrength = vortexGamma / (2 * Math.PI * (dist + 18)); // 1/d decay
-                const omega = 18;                                       // high-frequency shedding
-                const phase = Date.now() / 72;
-                const turbulenceFactor = vortexStrength * Math.sin(omega * doveBaseTheta + phase);
-                
-                // Perpendicular unit vector for tangential vortex rotation
-                const perpX = -dy / dist;
-                const perpY = dx / dist;
-                
-                // Apply perturbation (realistic vortex-induced displacement)
-                dovePos.x += turbulenceFactor * perpX * 14;
-                dovePos.y += turbulenceFactor * perpY * 14;
-                
-                // Extra random high-frequency jitter inside strong wake
-                if (dist < 110) {
-                    dovePos.x += 4 * Math.sin(42 * Date.now()/100) * turbulenceIntensity;
-                    dovePos.y += 4 * Math.cos(37 * Date.now()/100) * turbulenceIntensity;
-                }
-            }
-            
-            // Draw DOVE silhouette at perturbed position
-            ctx.save();
-            ctx.translate(dovePos.x, dovePos.y);
-            // Use base theta for stable flight orientation (turbulence affects position, not instant rotation)
-            ctx.rotate(getTangentAngle(doveBaseTheta) + Math.PI / 2);
-            ctx.fillStyle = '#cceeff';
-            ctx.strokeStyle = '#00aaff';
-            ctx.lineWidth = 2.5;
-            // Dove body (smaller)
-            ctx.fillRect(-8, -5, 19, 11);
-            // Dove wings (opposite flapping phase)
-            const flapD = Math.sin(Date.now()/210) * 7;
-            ctx.beginPath();
-            ctx.moveTo(-6, -6);
-            ctx.quadraticCurveTo(-30, -26 - flapD, -36, 0);
-            ctx.quadraticCurveTo(-30, 20 + flapD, -6, 7);
-            ctx.fill();
-            ctx.stroke();
-            ctx.restore();
-            
-            // Labels
-            ctx.fillStyle = '#ff9900';
-            ctx.font = 'bold 22px VT323';
-            ctx.shadowBlur = 15;
-            ctx.shadowColor = '#ff9900';
-            ctx.fillText('🦅 EAGLE (wake generator)', eaglePos.x + 55, eaglePos.y - 22);
-            
-            ctx.fillStyle = '#cceeff';
-            ctx.shadowColor = '#00aaff';
-            ctx.fillText('🕊️ DOVE (opposing flight)', dovePos.x - 70, dovePos.y - 25);
-            ctx.shadowBlur = 0;
-            
-            // Title overlay
-            ctx.fillStyle = '#00ffcc';
-            ctx.font = 'bold 28px VT323';
-            ctx.shadowBlur = 30;
-            ctx.shadowColor = '#00ffcc';
-            ctx.fillText('OBFUSCATED C → EUCLIDEAN FLIGHT + TURBULENCE', 410, 38);
-            ctx.shadowBlur = 0;
-            
-            // Progress
-            ctx.fillStyle = '#ffcc00';
-            ctx.font = '22px VT323';
-            ctx.fillText(`PROGRESS: ${(progress*100).toFixed(0)}%`, 620, 580);
-        }
-        
-        function animate() {
-            if (!isPaused) {
-                animationProgress += 0.0042;
-                if (animationProgress >= 1.05) {
-                    animationProgress = 1.05;
-                    setTimeout(() => { if (!isPaused) resetAnimation(); }, 2200);
-                }
-                drawFrame(Math.min(animationProgress, 1));
-            }
-            animationFrame = requestAnimationFrame(animate);
-        }
-        
-        function resetAnimation() {
-            animationProgress = 0;
-            drawFrame(0);
-        }
-        
-        function togglePause() {
-            isPaused = !isPaused;
-            const btns = document.querySelectorAll('button');
-            btns[1].textContent = isPaused ? '▶️ RESUME' : '⏸️ PAUSE';
-        }
-        
-        function changeObfuscation() {
-            const variants = [
-                `#include<stdio.h>
-#define _(_) main(){for(int i=0;i<999;i++)printf("%c","EAGLEAERODYNAMICSCODE"[i%18]);}`,
-                `#define P(x) x##x int P(m)(){puts("Obfuscated eagle calculus");}`,
-                `int(*f)()=main;main(){printf("C→Euclidean eagle lift");f();}`,
-                `#include <stdio.h>
-int main(){char*s="OBFUSCATEDC";for(int i=0;s[i];i++)putchar(s[i]);}`
-            ];
-            currentCode = variants[Math.floor(Math.random() * variants.length)];
-            document.getElementById('codePanel').textContent = currentCode;
-            chars = currentCode.split('');
-            resetAnimation();
-        }
-        
-        function toggleTurbulence() {
-            // Cycle turbulence intensity: normal → strong → extreme → normal
-            turbulenceIntensity = (turbulenceIntensity === 1) ? 2.2 : (turbulenceIntensity === 2.2 ? 3.8 : 1);
-            const label = document.getElementById('turbLevel');
-            if (turbulenceIntensity === 1) label.textContent = 'NORMAL';
-            else if (turbulenceIntensity === 2.2) label.textContent = 'STRONG';
-            else label.textContent = 'EXTREME 🌪️';
-            
-            // Quick flash feedback
-            const legend = document.getElementById('mathLegend');
-            legend.style.transition = 'all 0.3s';
-            legend.style.boxShadow = '0 0 30px #ff3300';
-            setTimeout(() => { legend.style.boxShadow = '0 0 15px #ff9900'; }, 400);
-        }
-        
-        function initialize() {
-            chars = currentCode.split('');
-            drawFrame(0);
-            animate();
-            console.log('%c✅ Eagle vs Dove turbulence simulator loaded (advanced calculus vortex model)', 'color:#ff9900; font-family:VT323; font-size:18px');
-        }
-        
-        window.onload = initialize;
-    </script>
+    
+    <p class="caption">Image: 20260328_122803.jpg</p>
 </body>
 </html>
