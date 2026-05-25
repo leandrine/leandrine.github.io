@@ -1,0 +1,1356 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>O General e o Tabuleiro - Xadrez & Sabedoria Chinesa</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Noto+Serif+SC:wght@400;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --ink-black: #1a1a1a;
+            --parchment: #f5f0e8;
+            --warm-white: #faf8f3;
+            --vermillion: #c41e3a;
+            --imperial-red: #8b0000;
+            --jade: #2d6a4f;
+            --gold: #c9a227;
+            --bronze: #8b6914;
+            --stone: #6b6b6b;
+            --light-stone: #e8e4dc;
+            --board-light: #f0d9b5;
+            --board-dark: #b58863;
+            --board-hover: rgba(201, 162, 39, 0.4);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--warm-white);
+            color: var(--ink-black);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        /* ===== HERO SECTION ===== */
+        .hero {
+            min-height: 100vh;
+            background: linear-gradient(135deg, var(--ink-black) 0%, #2d2d2d 50%, var(--imperial-red) 100%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.03'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+            opacity: 0.5;
+        }
+
+        .hero-content {
+            text-align: center;
+            z-index: 2;
+            padding: 2rem;
+            max-width: 900px;
+        }
+
+        .chinese-title {
+            font-family: 'Noto Serif SC', serif;
+            font-size: 3rem;
+            color: var(--gold);
+            margin-bottom: 0.5rem;
+            letter-spacing: 0.3em;
+            text-shadow: 0 0 20px rgba(201, 162, 39, 0.3);
+        }
+
+        .main-title {
+            font-family: 'Cinzel', serif;
+            font-size: clamp(2rem, 5vw, 4rem);
+            font-weight: 700;
+            color: var(--parchment);
+            margin-bottom: 1rem;
+            text-transform: uppercase;
+            letter-spacing: 0.15em;
+        }
+
+        .subtitle {
+            font-size: 1.2rem;
+            color: rgba(245, 240, 232, 0.8);
+            font-weight: 300;
+            margin-bottom: 2rem;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .hero-board {
+            width: 280px;
+            height: 280px;
+            margin: 2rem auto;
+            display: grid;
+            grid-template-columns: repeat(8, 1fr);
+            grid-template-rows: repeat(8, 1fr);
+            border: 3px solid var(--gold);
+            border-radius: 4px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.5), 0 0 40px rgba(201, 162, 39, 0.2);
+            transform: perspective(1000px) rotateX(15deg);
+            transition: transform 0.5s ease;
+        }
+
+        .hero-board:hover {
+            transform: perspective(1000px) rotateX(5deg) scale(1.05);
+        }
+
+        .hero-square {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.8rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .hero-square.light { background: var(--board-light); }
+        .hero-square.dark { background: var(--board-dark); }
+        .hero-square:hover { background: var(--board-hover); }
+
+        .scroll-indicator {
+            position: absolute;
+            bottom: 2rem;
+            left: 50%;
+            transform: translateX(-50%);
+            color: var(--gold);
+            font-size: 2rem;
+            animation: bounce 2s infinite;
+            cursor: pointer;
+        }
+
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% { transform: translateX(-50%) translateY(0); }
+            40% { transform: translateX(-50%) translateY(-10px); }
+            60% { transform: translateX(-50%) translateY(-5px); }
+        }
+
+        /* ===== NAVIGATION ===== */
+        .nav-bar {
+            position: sticky;
+            top: 0;
+            background: rgba(26, 26, 26, 0.95);
+            backdrop-filter: blur(10px);
+            z-index: 1000;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            border-bottom: 1px solid rgba(201, 162, 39, 0.3);
+        }
+
+        .nav-link {
+            color: var(--parchment);
+            text-decoration: none;
+            font-family: 'Cinzel', serif;
+            font-size: 0.9rem;
+            letter-spacing: 0.1em;
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            border: none;
+            background: none;
+        }
+
+        .nav-link:hover, .nav-link.active {
+            color: var(--gold);
+            background: rgba(201, 162, 39, 0.1);
+        }
+
+        /* ===== SECTIONS ===== */
+        .section {
+            padding: 4rem 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+            display: none;
+        }
+
+        .section.active {
+            display: block;
+            animation: fadeIn 0.5s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .section-title {
+            font-family: 'Cinzel', serif;
+            font-size: 2.5rem;
+            text-align: center;
+            margin-bottom: 0.5rem;
+            color: var(--ink-black);
+        }
+
+        .section-chinese {
+            font-family: 'Noto Serif SC', serif;
+            font-size: 1.5rem;
+            color: var(--vermillion);
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .section-divider {
+            width: 80px;
+            height: 3px;
+            background: var(--gold);
+            margin: 0 auto 3rem;
+            border-radius: 2px;
+        }
+
+        /* ===== PHILOSOPHY CARDS ===== */
+        .philosophy-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+
+        .philosophy-card {
+            background: white;
+            border-radius: 12px;
+            padding: 2rem;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            border-left: 4px solid var(--vermillion);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .philosophy-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 100px;
+            height: 100px;
+            background: radial-gradient(circle, rgba(201, 162, 39, 0.1) 0%, transparent 70%);
+            border-radius: 50%;
+            transform: translate(30%, -30%);
+        }
+
+        .philosophy-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 30px rgba(0,0,0,0.12);
+        }
+
+        .card-chinese {
+            font-family: 'Noto Serif SC', serif;
+            font-size: 1.3rem;
+            color: var(--vermillion);
+            margin-bottom: 0.5rem;
+        }
+
+        .card-quote {
+            font-family: 'Cinzel', serif;
+            font-size: 1.1rem;
+            font-style: italic;
+            color: var(--ink-black);
+            margin-bottom: 1rem;
+            line-height: 1.4;
+        }
+
+        .card-application {
+            color: var(--stone);
+            font-size: 0.95rem;
+        }
+
+        .card-application strong {
+            color: var(--jade);
+        }
+
+        /* ===== LESSON SYSTEM ===== */
+        .lesson-container {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 4px 30px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .lesson-header {
+            background: linear-gradient(135deg, var(--ink-black), var(--imperial-red));
+            color: var(--parchment);
+            padding: 2rem;
+            text-align: center;
+        }
+
+        .lesson-number {
+            font-family: 'Cinzel', serif;
+            font-size: 0.9rem;
+            letter-spacing: 0.2em;
+            color: var(--gold);
+            margin-bottom: 0.5rem;
+        }
+
+        .lesson-title {
+            font-family: 'Cinzel', serif;
+            font-size: 1.8rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .lesson-chinese {
+            font-family: 'Noto Serif SC', serif;
+            font-size: 1.2rem;
+            opacity: 0.8;
+        }
+
+        .lesson-body {
+            padding: 2rem;
+        }
+
+        .lesson-phase {
+            margin-bottom: 2rem;
+            padding: 1.5rem;
+            background: var(--warm-white);
+            border-radius: 8px;
+            border-left: 3px solid var(--gold);
+        }
+
+        .phase-title {
+            font-family: 'Cinzel', serif;
+            font-size: 1.2rem;
+            color: var(--imperial-red);
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .phase-icon {
+            font-size: 1.5rem;
+        }
+
+        /* ===== INTERACTIVE BOARD ===== */
+        .board-section {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 3rem;
+            align-items: start;
+        }
+
+        @media (max-width: 900px) {
+            .board-section {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .chess-board-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .chess-board {
+            width: 400px;
+            height: 400px;
+            display: grid;
+            grid-template-columns: repeat(8, 1fr);
+            grid-template-rows: repeat(8, 1fr);
+            border: 4px solid var(--ink-black);
+            border-radius: 4px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+        }
+
+        .chess-square {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.5rem;
+            cursor: pointer;
+            position: relative;
+            transition: all 0.2s ease;
+            user-select: none;
+        }
+
+        .chess-square.light { background: var(--board-light); }
+        .chess-square.dark { background: var(--board-dark); }
+        .chess-square.selected { background: rgba(201, 162, 39, 0.6) !important; }
+        .chess-square.possible-move::after {
+            content: '';
+            position: absolute;
+            width: 30%;
+            height: 30%;
+            background: rgba(45, 106, 79, 0.4);
+            border-radius: 50%;
+        }
+        .chess-square.last-move {
+            box-shadow: inset 0 0 0 3px rgba(201, 162, 39, 0.5);
+        }
+        .chess-square.check {
+            background: rgba(196, 30, 58, 0.4) !important;
+            animation: pulse 1s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+
+        .board-controls {
+            margin-top: 1rem;
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .btn {
+            padding: 0.6rem 1.2rem;
+            border: none;
+            border-radius: 6px;
+            font-family: 'Inter', sans-serif;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.9rem;
+        }
+
+        .btn-primary {
+            background: var(--imperial-red);
+            color: white;
+        }
+        .btn-primary:hover { background: var(--vermillion); transform: translateY(-2px); }
+
+        .btn-secondary {
+            background: var(--light-stone);
+            color: var(--ink-black);
+        }
+        .btn-secondary:hover { background: var(--stone); color: white; }
+
+        .btn-gold {
+            background: var(--gold);
+            color: var(--ink-black);
+        }
+        .btn-gold:hover { background: var(--bronze); color: white; }
+
+        .board-info {
+            padding: 1rem;
+            background: var(--warm-white);
+            border-radius: 8px;
+            margin-top: 1rem;
+            text-align: center;
+            font-size: 0.9rem;
+            color: var(--stone);
+        }
+
+        /* ===== ANALYSIS PANEL ===== */
+        .analysis-panel {
+            background: var(--warm-white);
+            border-radius: 12px;
+            padding: 2rem;
+        }
+
+        .analysis-title {
+            font-family: 'Cinzel', serif;
+            font-size: 1.3rem;
+            margin-bottom: 1rem;
+            color: var(--imperial-red);
+        }
+
+        .socratic-question {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 8px;
+            border-left: 4px solid var(--gold);
+            margin-bottom: 1.5rem;
+        }
+
+        .socratic-label {
+            font-family: 'Cinzel', serif;
+            font-size: 0.85rem;
+            color: var(--gold);
+            letter-spacing: 0.1em;
+            margin-bottom: 0.5rem;
+            text-transform: uppercase;
+        }
+
+        .question-text {
+            font-size: 1.1rem;
+            color: var(--ink-black);
+            font-weight: 500;
+        }
+
+        .hint-box {
+            background: rgba(45, 106, 79, 0.1);
+            border: 1px solid var(--jade);
+            border-radius: 8px;
+            padding: 1rem;
+            margin-top: 1rem;
+            display: none;
+        }
+
+        .hint-box.visible { display: block; }
+
+        .hint-label {
+            color: var(--jade);
+            font-weight: 600;
+            font-size: 0.85rem;
+            margin-bottom: 0.3rem;
+        }
+
+        .solution-box {
+            background: rgba(196, 30, 58, 0.05);
+            border: 1px solid var(--vermillion);
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-top: 1rem;
+            display: none;
+        }
+
+        .solution-box.visible { display: block; }
+
+        .solution-title {
+            font-family: 'Cinzel', serif;
+            color: var(--vermillion);
+            margin-bottom: 0.5rem;
+        }
+
+        /* ===== PROGRESS TRACKER ===== */
+        .progress-section {
+            background: linear-gradient(135deg, var(--ink-black), #3d3d3d);
+            color: var(--parchment);
+            padding: 3rem 2rem;
+            border-radius: 16px;
+            margin: 3rem 0;
+        }
+
+        .progress-title {
+            font-family: 'Cinzel', serif;
+            font-size: 1.8rem;
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .progress-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .progress-item {
+            background: rgba(255,255,255,0.05);
+            padding: 1.5rem;
+            border-radius: 8px;
+            text-align: center;
+            border: 1px solid rgba(201, 162, 39, 0.2);
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .progress-item:hover {
+            background: rgba(255,255,255,0.1);
+            border-color: var(--gold);
+        }
+
+        .progress-item.completed {
+            border-color: var(--jade);
+            background: rgba(45, 106, 79, 0.2);
+        }
+
+        .progress-check {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .progress-label {
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        /* ===== EXERCISES ===== */
+        .exercise-card {
+            background: white;
+            border-radius: 12px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            border-top: 4px solid var(--gold);
+        }
+
+        .exercise-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .exercise-difficulty {
+            padding: 0.3rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .difficulty-easy { background: rgba(45, 106, 79, 0.2); color: var(--jade); }
+        .difficulty-medium { background: rgba(201, 162, 39, 0.2); color: var(--bronze); }
+        .difficulty-hard { background: rgba(196, 30, 58, 0.2); color: var(--vermillion); }
+
+        .exercise-board {
+            width: 100%;
+            max-width: 350px;
+            height: 350px;
+            margin: 0 auto 1.5rem;
+        }
+
+        /* ===== FOOTER ===== */
+        .footer {
+            background: var(--ink-black);
+            color: var(--parchment);
+            text-align: center;
+            padding: 3rem 2rem;
+            margin-top: 4rem;
+        }
+
+        .footer-quote {
+            font-family: 'Cinzel', serif;
+            font-size: 1.2rem;
+            font-style: italic;
+            max-width: 600px;
+            margin: 0 auto 1rem;
+            color: var(--gold);
+        }
+
+        .footer-chinese {
+            font-family: 'Noto Serif SC', serif;
+            font-size: 1rem;
+            opacity: 0.6;
+        }
+
+        /* ===== RESPONSIVE ===== */
+        @media (max-width: 768px) {
+            .nav-bar {
+                flex-wrap: wrap;
+                gap: 1rem;
+                padding: 0.5rem;
+            }
+            .nav-link {
+                font-size: 0.8rem;
+                padding: 0.4rem 0.8rem;
+            }
+            .chess-board {
+                width: 300px;
+                height: 300px;
+            }
+            .chess-square {
+                font-size: 1.8rem;
+            }
+            .section {
+                padding: 2rem 1rem;
+            }
+            .chinese-title {
+                font-size: 2rem;
+            }
+        }
+
+        /* ===== ANIMATIONS ===== */
+        .fade-in-up {
+            animation: fadeInUp 0.6s ease forwards;
+            opacity: 0;
+        }
+
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .stagger-1 { animation-delay: 0.1s; }
+        .stagger-2 { animation-delay: 0.2s; }
+        .stagger-3 { animation-delay: 0.3s; }
+        .stagger-4 { animation-delay: 0.4s; }
+    </style>
+<base target="_blank">
+</head>
+<body>
+
+    <!-- HERO -->
+    <section class="hero" id="inicio">
+        <div class="hero-content">
+            <div class="chinese-title">兵法棋道</div>
+            <h1 class="main-title">O General e o Tabuleiro</h1>
+            <p class="subtitle">
+                Xadrez intermediário e avançado através dos 5000 anos de sabedoria estratégica chinesa. 
+                Para jovens campeões que buscam a maestria.
+            </p>
+
+            <div class="hero-board" id="heroBoard"></div>
+
+            <div style="margin-top: 2rem;">
+                <button class="btn btn-gold" style="font-size: 1.1rem; padding: 0.8rem 2rem;" onclick="showSection('licoes')">
+                    ⚔️ Iniciar Jornada
+                </button>
+            </div>
+        </div>
+        <div class="scroll-indicator" onclick="showSection('filosofia')">▼</div>
+    </section>
+
+    <!-- NAVIGATION -->
+    <nav class="nav-bar">
+        <button class="nav-link active" onclick="showSection('inicio')">Início</button>
+        <button class="nav-link" onclick="showSection('filosofia')">Sabedoria</button>
+        <button class="nav-link" onclick="showSection('licoes')">Lições</button>
+        <button class="nav-link" onclick="showSection('tabuleiro')">Tabuleiro</button>
+        <button class="nav-link" onclick="showSection('exercicios')">Exercícios</button>
+        <button class="nav-link" onclick="showSection('progresso')">Progresso</button>
+    </nav>
+
+    <!-- FILOSOFIA SECTION -->
+    <section class="section active" id="filosofia">
+        <h2 class="section-title">Os Oito Princípios do General</h2>
+        <div class="section-chinese">兵法八則</div>
+        <div class="section-divider"></div>
+
+        <div class="philosophy-grid">
+            <div class="philosophy-card fade-in-up stagger-1">
+                <div class="card-chinese">知己知彼</div>
+                <div class="card-quote">"Se conheces o inimigo e te conheces a ti mesmo, não precisas temer o resultado de cem batalhas."</div>
+                <div class="card-application">
+                    <strong>Aplicação no Xadrez:</strong> Avaliação honesta da posição. Identifique suas fraquezas (peões isolados, rei exposto) e as do oponente antes de qualquer plano. A ilusão é o primeiro inimigo.
+                </div>
+            </div>
+
+            <div class="philosophy-card fade-in-up stagger-2">
+                <div class="card-chinese">不战而胜</div>
+                <div class="card-quote">"A maior vitória é vencer sem lutar."</div>
+                <div class="card-application">
+                    <strong>Aplicação no Xadrez:</strong> Vitória posicional. Acumule pequenas vantagens (espaço, estrutura de peões) até que o oponente se veja derrotado sem necessidade de combinações táticas violentas.
+                </div>
+            </div>
+
+            <div class="philosophy-card fade-in-up stagger-3">
+                <div class="card-chinese">兵者诡道</div>
+                <div class="card-quote">"Toda guerra é baseada no engano."</div>
+                <div class="card-application">
+                    <strong>Aplicação no Xadrez:</strong> Armadilhas e fintas. Lances de provocação que induzem o erro. Ataques descobertos, deflexões e sobrecarga. Faça o oponente ver o que você quer que ele veja.
+                </div>
+            </div>
+
+            <div class="philosophy-card fade-in-up stagger-4">
+                <div class="card-chinese">水因地制流</div>
+                <div class="card-quote">"A água molda seu curso conforme o terreno."</div>
+                <div class="card-application">
+                    <strong>Aplicação no Xadrez:</strong> Flexibilidade de planos. Não se apegue a uma única ideia. Adapte sua estratégia conforme a reação do oponente. O jogo posicional fluido vence o jogador rígido.
+                </div>
+            </div>
+
+            <div class="philosophy-card fade-in-up stagger-1">
+                <div class="card-chinese">蓄势待发</div>
+                <div class="card-quote">"Quem é prudente e espera o momento certo, alcança a vitória com facilidade."</div>
+                <div class="card-application">
+                    <strong>Aplicação no Xadrez:</strong> Paciência e prophylaxis. Jogue contra os planos do oponente. Acumule "shi" (potencial estratégico). O momento certo para o ataque revela-se a quem espera.
+                </div>
+            </div>
+
+            <div class="philosophy-card fade-in-up stagger-2">
+                <div class="card-chinese">积小胜为大胜</div>
+                <div class="card-quote">"Acumule vantagens como quem acumula montanhas."</div>
+                <div class="card-application">
+                    <strong>Aplicação no Xadrez:</strong> Conversão gradual. Um peão a mais é uma montanha no final. Troque peças quando tem vantagem material. Simplifique para finais técnicos ganhos.
+                </div>
+            </div>
+
+            <div class="philosophy-card fade-in-up stagger-3">
+                <div class="card-chinese">兵贵神速</div>
+                <div class="card-quote">"A oportunidade de vencer derrota-se na velocidade."</div>
+                <div class="card-application">
+                    <strong>Aplicação no Xadrez:</strong> Tempo é vida. Ganho de tempo no desenvolvimento. Iniciativa. Peças deslocadas custam lances. Aquele que mobiliza primeiro, domina o campo de batalha.
+                </div>
+            </div>
+
+            <div class="philosophy-card fade-in-up stagger-4">
+                <div class="card-chinese">上下同欲</div>
+                <div class="card-quote">"O comandante sábio coloca seus homens em situações onde todos lutam juntos."</div>
+                <div class="card-application">
+                    <strong>Aplicação no Xadrez:</strong> Coordenação das peças. Torres na mesma coluna, bispo e cavalo protegendo o mesmo ponto, rainha e torre na sétima fileira. Peças isoladas são soldados perdidos.
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- LIÇÕES SECTION -->
+    <section class="section" id="licoes">
+        <h2 class="section-title">Lições do General</h2>
+        <div class="section-chinese">将军课程</div>
+        <div class="section-divider"></div>
+
+        <div class="lesson-container">
+            <div class="lesson-header">
+                <div class="lesson-number">LIÇÃO 1 DE 12</div>
+                <h3 class="lesson-title">Conhece-te a Ti Mesmo</h3>
+                <div class="lesson-chinese">知己知彼，百战不殆</div>
+            </div>
+
+            <div class="lesson-body">
+                <div class="lesson-phase">
+                    <div class="phase-title">
+                        <span class="phase-icon">🎯</span>
+                        Fase 1: Avaliação Estratégica
+                    </div>
+                    <p>Antes de qualquer lance, o general examina o campo. No xadrez, isso significa avaliar:</p>
+                    <ul style="margin-top: 1rem; margin-left: 1.5rem; color: var(--stone);">
+                        <li><strong>Material:</strong> Quem tem mais peças? Qualidade (torre vs. cavalo)?</li>
+                        <li><strong>Espaço:</strong> Quem controla mais território?</li>
+                        <li><strong>Estrutura de peões:</strong> Peões isolados? Dobrados? Passados?</li>
+                        <li><strong>Atividade das peças:</strong> Suas peças estão bem colocadas?</li>
+                        <li><strong>Segurança do rei:</strong> O rei está seguro ou exposto?</li>
+                    </ul>
+                </div>
+
+                <div class="lesson-phase">
+                    <div class="phase-title">
+                        <span class="phase-icon">🧩</span>
+                        Fase 2: Identificação de Fraquezas
+                    </div>
+                    <p>Como Sun Tzu busca o ponto fraco do inimigo, identifique:</p>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-top: 1rem;">
+                        <div style="background: rgba(196, 30, 58, 0.1); padding: 1rem; border-radius: 6px;">
+                            <strong style="color: var(--vermillion);">Fraquezas suas:</strong><br>
+                            Peões isolados, casas fracas, rei no centro, peças deslocadas
+                        </div>
+                        <div style="background: rgba(45, 106, 79, 0.1); padding: 1rem; border-radius: 6px;">
+                            <strong style="color: var(--jade);">Fraquezas do oponente:</strong><br>
+                            Rei exposto, peões atrasados, peças supercarregadas, falta de coordenação
+                        </div>
+                    </div>
+                </div>
+
+                <div class="lesson-phase">
+                    <div class="phase-title">
+                        <span class="phase-icon">📐</span>
+                        Fase 3: O Plano Estratégico
+                    </div>
+                    <p>Baseado na avaliação, formule um plano concreto:</p>
+                    <div style="background: white; padding: 1.5rem; border-radius: 8px; margin-top: 1rem; border: 1px solid var(--light-stone);">
+                        <p style="font-style: italic; color: var(--bronze); margin-bottom: 1rem;">
+                            "O general vitorioso faz muitos cálculos antes da batalha. O general derrotado faz poucos."
+                        </p>
+                        <p><strong>Exemplo de plano:</strong> "Tenho peão passado em d5. Vou: 1) Trocar bispos para abrir coluna d; 2) Colocar torre atrás do peão passado; 3) Avançar com o rei para apoiar a promoção."</p>
+                    </div>
+                </div>
+
+                <div style="text-align: center; margin-top: 2rem;">
+                    <button class="btn btn-primary" onclick="showSection('tabuleiro')">Ir para Tabuleiro Interativo →</button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- TABULEIRO INTERATIVO -->
+    <section class="section" id="tabuleiro">
+        <h2 class="section-title">Campo de Batalha</h2>
+        <div class="section-chinese">战场</div>
+        <div class="section-divider"></div>
+
+        <div class="board-section">
+            <div class="chess-board-container">
+                <div class="chess-board" id="mainBoard"></div>
+                <div class="board-controls">
+                    <button class="btn btn-secondary" onclick="resetBoard()">↺ Resetar</button>
+                    <button class="btn btn-secondary" onclick="flipBoard()">⇅ Inverter</button>
+                    <button class="btn btn-gold" onclick="loadPosition('tatica1')">⚔️ Tática 1</button>
+                    <button class="btn btn-gold" onclick="loadPosition('estrategia1')">📐 Estratégia 1</button>
+                    <button class="btn btn-primary" onclick="loadPosition('final1')">🏁 Final 1</button>
+                </div>
+                <div class="board-info" id="boardInfo">
+                    Tabuleiro inicial. Selecione uma posição acima ou mova as peças clicando nelas.
+                </div>
+            </div>
+
+            <div class="analysis-panel">
+                <h3 class="analysis-title">Análise do General</h3>
+
+                <div class="socratic-question">
+                    <div class="socratic-label">Pergunta Socrática</div>
+                    <div class="question-text" id="socraticQuestion">
+                        Carregue uma posição de estudo para começar a análise. O que Sun Tzu faria nesta posição?
+                    </div>
+                </div>
+
+                <div class="hint-box" id="hintBox">
+                    <div class="hint-label">💡 Dica do Mestre</div>
+                    <div id="hintText"></div>
+                </div>
+
+                <div class="solution-box" id="solutionBox">
+                    <div class="solution-title">📜 Revelação Estratégica</div>
+                    <div id="solutionText"></div>
+                </div>
+
+                <div style="display: flex; gap: 0.5rem; margin-top: 1rem;">
+                    <button class="btn btn-secondary" onclick="showHint()">💡 Dica</button>
+                    <button class="btn btn-primary" onclick="showSolution()">📜 Revelar</button>
+                </div>
+
+                <div style="margin-top: 2rem; padding-top: 2rem; border-top: 1px solid var(--light-stone);">
+                    <h4 style="font-family: 'Cinzel', serif; margin-bottom: 1rem; color: var(--imperial-red);">Princípio Aplicado</h4>
+                    <div id="principleText" style="font-style: italic; color: var(--stone);">
+                        Selecione uma posição para ver o princípio chinês correspondente.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- EXERCÍCIOS -->
+    <section class="section" id="exercicios">
+        <h2 class="section-title">Campo de Treinamento</h2>
+        <div class="section-chinese">训练场</div>
+        <div class="section-divider"></div>
+
+        <div class="exercise-card">
+            <div class="exercise-header">
+                <h3 style="font-family: 'Cinzel', serif;">Exercício 1: O Garfo do Dragão</h3>
+                <span class="exercise-difficulty difficulty-easy">Iniciante</span>
+            </div>
+            <p style="margin-bottom: 1rem; color: var(--stone);">
+                <strong>Princípio:</strong> "Toda guerra é baseada no engano" — Crie uma armadilha que parece um lance natural.
+            </p>
+            <div style="background: var(--warm-white); padding: 1.5rem; border-radius: 8px;">
+                <p><strong>Posição:</strong> Brancas jogam. Você tem cavalo em f3, torre em e1, rainha em d1. Oponente tem rei em g8, torre em f8, bispo em c5.</p>
+                <p style="margin-top: 1rem;"><strong>Tarefa:</strong> Encontre a sequência de 2 lances que ganha material decisivo usando um ataque descoberto.</p>
+                <div style="margin-top: 1rem;">
+                    <button class="btn btn-secondary" onclick="this.nextElementSibling.classList.toggle('visible')">Ver Resposta</button>
+                    <div class="hint-box" style="margin-top: 0.5rem;">
+                        <strong>1. Cg5!</strong> Ameaça mate em h7. Se ...h6, então <strong>2.Cxf7+</strong> (descoberto pela torre em f1!) ganhando a torre em d8 por garfo. O cavalo é o soldado que engana enquanto a torre ataca pela retaguarda.
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="exercise-card">
+            <div class="exercise-header">
+                <h3 style="font-family: 'Cinzel', serif;">Exercício 2: A Montanha do Peão Passado</h3>
+                <span class="exercise-difficulty difficulty-medium">Intermediário</span>
+            </div>
+            <p style="margin-bottom: 1rem; color: var(--stone);">
+                <strong>Princípio:</strong> "Acumule vantagens como montanhas" — Um peão passado distante pode valer mais que uma peça menor.
+            </p>
+            <div style="background: var(--warm-white); padding: 1.5rem; border-radius: 8px;">
+                <p><strong>Posição:</strong> Final de torres. Você tem torre em a1, rei em f2, peão passado em a5. Oponente tem torre em h8, rei em g7.</p>
+                <p style="margin-top: 1rem;"><strong>Tarefa:</strong> Qual é o plano correto para promover o peão? (Dica: pense na técnica "torre atrás do peão")</p>
+                <div style="margin-top: 1rem;">
+                    <button class="btn btn-secondary" onclick="this.nextElementSibling.classList.toggle('visible')">Ver Resposta</button>
+                    <div class="hint-box" style="margin-top: 0.5rem;">
+                        <strong>Plano:</strong> 1. <strong>Ta4!</strong> Coloque a torre na 4ª fileira (posição de defesa e ataque). 2. Avance o rei em direção ao peão. 3. Quando o rei estiver próximo, avance o peão com <strong>a6, a7</strong>. A torre atrás do peão passado é uma fortaleza ambulante — o princípio chinês da "montanha que se move".
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="exercise-card">
+            <div class="exercise-header">
+                <h3 style="font-family: 'Cinzel', serif;">Exercício 3: A Água que Molda o Curso</h3>
+                <span class="exercise-difficulty difficulty-hard">Avançado</span>
+            </div>
+            <p style="margin-bottom: 1rem; color: var(--stone);">
+                <strong>Princípio:</strong> "A água molda seu curso conforme o terreno" — Adapte seu plano quando o oponente muda a estrutura.
+            </p>
+            <div style="background: var(--warm-white); padding: 1.5rem; border-radius: 8px;">
+                <p><strong>Posição:</strong> Meio-jogo complexo. Você planejava ataque no rei inimigo pela ala do rei, mas o oponente jogou ...g6, fechando a diagonal do bispo.</p>
+                <p style="margin-top: 1rem;"><strong>Tarefa:</strong> Qual deve ser sua nova estratégia? Descreva o plano em 3 etapas.</p>
+                <div style="margin-top: 1rem;">
+                    <button class="btn btn-secondary" onclick="this.nextElementSibling.classList.toggle('visible')">Ver Resposta</button>
+                    <div class="hint-box" style="margin-top: 0.5rem;">
+                        <strong>Adaptação:</strong> Como a água que encontra pedras e desvia: 1) <strong>Reagrupar</strong> — transferir a rainha para a ala da dama; 2) <strong>Abrir linhas</strong> com c4-c5 ou b2-b4 para criar peão passado; 3) <strong>Explodir</strong> o centro com peões. O rei inimigo agora está seguro, mas sua estrutura de peões está comprometida. A vitória virá pelo acúmulo posicional, não pelo ataque direto.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- PROGRESSO -->
+    <section class="section" id="progresso">
+        <h2 class="section-title">Caminho do Mestre</h2>
+        <div class="section-chinese">大师之路</div>
+        <div class="section-divider"></div>
+
+        <div class="progress-section">
+            <h3 class="progress-title">Seu Progresso no Campeonato</h3>
+            <div class="progress-grid">
+                <div class="progress-item completed" onclick="toggleComplete(this)">
+                    <div class="progress-check">✅</div>
+                    <div class="progress-label">Regras & Táticas Básicas</div>
+                </div>
+                <div class="progress-item completed" onclick="toggleComplete(this)">
+                    <div class="progress-check">✅</div>
+                    <div class="progress-label">Avaliação Posicional</div>
+                </div>
+                <div class="progress-item" onclick="toggleComplete(this)">
+                    <div class="progress-check">⬜</div>
+                    <div class="progress-label">Meio-Jogo Estratégico</div>
+                </div>
+                <div class="progress-item" onclick="toggleComplete(this)">
+                    <div class="progress-check">⬜</div>
+                    <div class="progress-label">Táticas Avançadas</div>
+                </div>
+                <div class="progress-item" onclick="toggleComplete(this)">
+                    <div class="progress-check">⬜</div>
+                    <div class="progress-label">Finais Técnicos</div>
+                </div>
+                <div class="progress-item" onclick="toggleComplete(this)">
+                    <div class="progress-check">⬜</div>
+                    <div class="progress-label">Aberturas Sólidas</div>
+                </div>
+                <div class="progress-item" onclick="toggleComplete(this)">
+                    <div class="progress-check">⬜</div>
+                    <div class="progress-label">Cálculo 3-4 Lances</div>
+                </div>
+                <div class="progress-item" onclick="toggleComplete(this)">
+                    <div class="progress-check">⬜</div>
+                    <div class="progress-label">Mentalidade de Campeão</div>
+                </div>
+            </div>
+        </div>
+
+        <div style="background: white; border-radius: 12px; padding: 2rem; margin-top: 2rem; box-shadow: 0 4px 20px rgba(0,0,0,0.08);">
+            <h3 style="font-family: 'Cinzel', serif; margin-bottom: 1rem; color: var(--imperial-red);">📋 Checklist Pré-Campeonato</h3>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1rem;">
+                <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+                    <input type="checkbox" style="width: 18px; height: 18px; accent-color: var(--jade);">
+                    <span>Dormir bem na noite anterior</span>
+                </label>
+                <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+                    <input type="checkbox" style="width: 18px; height: 18px; accent-color: var(--jade);">
+                    <span>Revisar aberturas principais</span>
+                </label>
+                <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+                    <input type="checkbox" style="width: 18px; height: 18px; accent-color: var(--jade);">
+                    <span>Praticar 5 exercícios de tática</span>
+                </label>
+                <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+                    <input type="checkbox" style="width: 18px; height: 18px; accent-color: var(--jade);">
+                    <span>Revisar finais básicos de peão</span>
+                </label>
+                <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+                    <input type="checkbox" style="width: 18px; height: 18px; accent-color: var(--jade);">
+                    <span>Levar água e lanche leve</span>
+                </label>
+                <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+                    <input type="checkbox" style="width: 18px; height: 18px; accent-color: var(--jade);">
+                    <span>Chegar 15 min antes para ambientar</span>
+                </label>
+                <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+                    <input type="checkbox" style="width: 18px; height: 18px; accent-color: var(--jade);">
+                    <span>Lembrar: paciência vence velocidade</span>
+                </label>
+                <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+                    <input type="checkbox" style="width: 18px; height: 18px; accent-color: var(--jade);">
+                    <span>Confiar no treinamento feito</span>
+                </label>
+            </div>
+        </div>
+    </section>
+
+    <!-- FOOTER -->
+    <footer class="footer">
+        <div class="footer-quote">
+            "O caminho de mil li começa com um único passo — ou, no xadrez, com um único lance pensado."
+        </div>
+        <div class="footer-chinese">千里之行，始于足下</div>
+        <p style="margin-top: 2rem; opacity: 0.5; font-size: 0.9rem;">
+            O General e o Tabuleiro — Xadrez & Sabedoria Chinesa<br>
+            Para jovens estrategistas em formação
+        </p>
+    </footer>
+
+    <script>
+        // ===== NAVIGATION =====
+        function showSection(id) {
+            document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+            document.querySelectorAll('.nav-link').forEach(n => n.classList.remove('active'));
+
+            if (id === 'inicio') {
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+                document.querySelector('.nav-link').classList.add('active');
+            } else {
+                const section = document.getElementById(id);
+                if (section) {
+                    section.classList.add('active');
+                    const navBtn = Array.from(document.querySelectorAll('.nav-link')).find(n => 
+                        n.getAttribute('onclick').includes(id)
+                    );
+                    if (navBtn) navBtn.classList.add('active');
+                    section.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
+            }
+        }
+
+        // ===== HERO BOARD =====
+        const heroPieces = [
+            '♜','♞','♝','♛','♚','♝','♞','♜',
+            '♟','♟','♟','♟','♟','♟','♟','♟',
+            '','','','','','','','',
+            '','','','','','','','',
+            '','','','','','','','',
+            '','','','','','','','',
+            '♙','♙','♙','♙','♙','♙','♙','♙',
+            '♖','♘','♗','♕','♔','♗','♘','♖'
+        ];
+
+        function initHeroBoard() {
+            const board = document.getElementById('heroBoard');
+            board.innerHTML = '';
+            for (let i = 0; i < 64; i++) {
+                const square = document.createElement('div');
+                square.className = `hero-square ${(Math.floor(i/8) + i%8) % 2 === 0 ? 'light' : 'dark'}`;
+                square.textContent = heroPieces[i];
+                square.style.color = i < 32 ? '#1a1a1a' : '#c41e3a';
+                board.appendChild(square);
+            }
+        }
+
+        // ===== MAIN CHESS BOARD =====
+        let currentBoard = [];
+        let selectedSquare = null;
+        let isFlipped = false;
+        let currentPosition = 'start';
+
+        const positions = {
+            start: {
+                pieces: [
+                    'r','n','b','q','k','b','n','r',
+                    'p','p','p','p','p','p','p','p',
+                    '','','','','','','','',
+                    '','','','','','','','',
+                    '','','','','','','','',
+                    '','','','','','','','',
+                    'P','P','P','P','P','P','P','P',
+                    'R','N','B','Q','K','B','N','R'
+                ],
+                info: 'Posição inicial. Brancas começam.',
+                question: 'Como começar a batalha? Qual abertura escolher para controlar o centro?',
+                hint: 'Sun Tzu diz: "A oportunidade de vencer derrota-se na velocidade." 1.e4 ou 1.d4 abrem linhas para a dama e o bispo, ganhando tempo no desenvolvimento.',
+                solution: '1.e4! (Abertura do Peão do Rei) ou 1.d4! (Abertura do Peão da Dama). Ambas lutam pelo centro. 1.e4 é mais tática; 1.d4 é mais estratégica. Como general jovem, 1.e4 ensina padrões de ataque.',
+                principle: '兵贵神速 — A velocidade no desenvolvimento é a primeira batalha.'
+            },
+            tatica1: {
+                custom: true,
+                setup: [
+                    {sq: 60, piece: 'K', color: 'white'},
+                    {sq: 3, piece: 'Q', color: 'white'},
+                    {sq: 13, piece: 'N', color: 'white'},
+                    {sq: 4, piece: 'k', color: 'black'},
+                ],
+                info: 'Tática: Ataque Descoberto. Brancas jogam.',
+                question: 'O rei inimigo parece seguro. Como usar o cavalo como isca para revelar o poder da dama?',
+                hint: 'Pense em "engano". O cavalo pode se mover para uma casa que parece inofensiva, mas abre uma linha mortal.',
+                solution: '1.Cf6+! (Xeque!). O rei deve se mover. Depois 2.Dxd8, ganhando a dama. O cavalo era apenas o soldado de infantaria que abria caminho para o general (dama).',
+                principle: '兵者诡道 — O engano é a alma da tática. O lance aparentemente modesto do cavalo esconde a verdadeira ameaça da dama.'
+            },
+            estrategia1: {
+                custom: true,
+                setup: [
+                    {sq: 60, piece: 'K', color: 'white'},
+                    {sq: 35, piece: 'P', color: 'white'},
+                    {sq: 4, piece: 'k', color: 'black'},
+                    {sq: 2, piece: 'b', color: 'black'},
+                    {sq: 5, piece: 'b', color: 'black'},
+                    {sq: 26, piece: 'n', color: 'black'},
+                ],
+                info: 'Estratégia: Peão Isolado vs. Par de Bispos. Brancas jogam.',
+                question: 'Seu peão em d4 está isolado. Oponente tem par de bispos. O que Sun Tzu aconselharia?',
+                hint: '"Não lute em terreno desfavorável." Elimine uma das armas do inimigo. Trocar um bispo pelo cavalo reduz o poder de longo alcance dele.',
+                solution: '1.Cc3! Desenvolvendo e ameaçando trocar o cavalo pelo bispo de c8 via a4 ou e4. Se ...b6 (para proteger), então 2.Ca4, forçando a troca. Sem o par de bispos, o peão isolado em d4 fica mais fácil de defender.',
+                principle: '知己知彼 — Conheça a força do par de bispos (arqueiros de longo alcance) e neutralize-a antes que sitiem seu peão isolado (a colina indefesa).'
+            },
+            final1: {
+                custom: true,
+                setup: [
+                    {sq: 52, piece: 'K', color: 'white'},
+                    {sq: 48, piece: 'P', color: 'white'},
+                    {sq: 40, piece: 'P', color: 'white'},
+                    {sq: 32, piece: 'P', color: 'white'},
+                    {sq: 4, piece: 'k', color: 'black'},
+                    {sq: 0, piece: 'r', color: 'black'},
+                ],
+                info: 'Final: Torre vs. Peão Passado. Brancas jogam.',
+                question: 'Você tem um peão passado distante, mas a torre inimiga está na 8ª fileira. Como promover?',
+                hint: 'A torre atrás do peão passado é a técnica clássica. Mas aqui a torre inimiga já está atrás! Use o rei como escudo.',
+                solution: '1.a5! (Avança). Se Tx a5, então Kb3 e o rei protege o peão enquanto avança. O segredo é coordenar rei + peão. O rei deve liderar; o peão segue. Quando o rei chega a c6, o peão está impossível de parar.',
+                principle: '积小胜为大胜 — O peão é uma pequena vantagem que se torna uma montanha (dama) no final. A paciência do rei que escolta o peão é a acumulação de força.'
+            }
+        };
+
+        function initMainBoard() {
+            const board = document.getElementById('mainBoard');
+            board.innerHTML = '';
+            currentBoard = positions.start.pieces.slice();
+
+            for (let i = 0; i < 64; i++) {
+                const square = document.createElement('div');
+                const row = Math.floor(i / 8);
+                const col = i % 8;
+                const displayIndex = isFlipped ? (7 - row) * 8 + (7 - col) : i;
+
+                square.className = `chess-square ${(Math.floor(displayIndex/8) + displayIndex%8) % 2 === 0 ? 'light' : 'dark'}`;
+                square.dataset.index = displayIndex;
+                square.onclick = () => handleSquareClick(displayIndex);
+                board.appendChild(square);
+            }
+            renderBoard();
+        }
+
+        function renderBoard() {
+            const squares = document.querySelectorAll('#mainBoard .chess-square');
+            const pieceSymbols = {
+                'r': '♜', 'n': '♞', 'b': '♝', 'q': '♛', 'k': '♚', 'p': '♟',
+                'R': '♖', 'N': '♘', 'B': '♗', 'Q': '♕', 'K': '♔', 'P': '♙',
+                '': ''
+            };
+
+            squares.forEach(sq => {
+                const idx = parseInt(sq.dataset.index);
+                const piece = currentBoard[idx];
+                sq.textContent = pieceSymbols[piece] || '';
+                sq.style.color = piece && piece === piece.toLowerCase() ? '#1a1a1a' : '#c41e3a';
+            });
+        }
+
+        function handleSquareClick(index) {
+            const piece = currentBoard[index];
+
+            if (selectedSquare !== null) {
+                if (selectedSquare !== index) {
+                    currentBoard[index] = currentBoard[selectedSquare];
+                    currentBoard[selectedSquare] = '';
+                    document.querySelectorAll('.chess-square').forEach(s => {
+                        s.classList.remove('selected', 'possible-move', 'last-move');
+                    });
+                    document.querySelector(`[data-index="${index}"]`).classList.add('last-move');
+                    document.querySelector(`[data-index="${selectedSquare}"]`).classList.add('last-move');
+                }
+                selectedSquare = null;
+                renderBoard();
+            } else if (piece) {
+                selectedSquare = index;
+                document.querySelectorAll('.chess-square').forEach(s => s.classList.remove('selected', 'possible-move'));
+                document.querySelector(`[data-index="${index}"]`).classList.add('selected');
+                const moves = getSimpleMoves(index, piece);
+                moves.forEach(m => {
+                    const sq = document.querySelector(`[data-index="${m}"]`);
+                    if (sq) sq.classList.add('possible-move');
+                });
+            }
+        }
+
+        function getSimpleMoves(index, piece) {
+            const moves = [];
+            const row = Math.floor(index / 8);
+            const col = index % 8;
+            const isWhite = piece === piece.toUpperCase();
+
+            if (piece.toLowerCase() === 'p') {
+                const dir = isWhite ? -1 : 1;
+                const newRow = row + dir;
+                if (newRow >= 0 && newRow < 8) {
+                    moves.push(newRow * 8 + col);
+                    if ((isWhite && row === 6) || (!isWhite && row === 1)) {
+                        moves.push((newRow + dir) * 8 + col);
+                    }
+                }
+            } else if (piece.toLowerCase() === 'n') {
+                const offsets = [-17, -15, -10, -6, 6, 10, 15, 17];
+                offsets.forEach(o => {
+                    const newIdx = index + o;
+                    if (newIdx >= 0 && newIdx < 64) {
+                        const newRow = Math.floor(newIdx / 8);
+                        const newCol = newIdx % 8;
+                        if (Math.abs(newRow - row) <= 2 && Math.abs(newCol - col) <= 2) {
+                            moves.push(newIdx);
+                        }
+                    }
+                });
+            } else {
+                for (let r = -1; r <= 1; r++) {
+                    for (let c = -1; c <= 1; c++) {
+                        if (r === 0 && c === 0) continue;
+                        const newRow = row + r;
+                        const newCol = col + c;
+                        if (newRow >= 0 && newRow < 8 && newCol >= 0 && newCol < 8) {
+                            moves.push(newRow * 8 + newCol);
+                        }
+                    }
+                }
+            }
+            return moves;
+        }
+
+        function loadPosition(posKey) {
+            const pos = positions[posKey];
+            if (!pos) return;
+
+            currentPosition = posKey;
+            currentBoard = Array(64).fill('');
+
+            if (pos.custom && pos.setup) {
+                pos.setup.forEach(item => {
+                    const piece = item.color === 'white' ? item.piece.toUpperCase() : item.piece.toLowerCase();
+                    currentBoard[item.sq] = piece;
+                });
+            } else if (pos.pieces) {
+                currentBoard = pos.pieces.slice();
+            }
+
+            renderBoard();
+            document.getElementById('boardInfo').textContent = pos.info;
+            document.getElementById('socraticQuestion').textContent = pos.question;
+            document.getElementById('hintText').textContent = pos.hint;
+            document.getElementById('solutionText').textContent = pos.solution;
+            document.getElementById('principleText').textContent = pos.principle;
+            document.getElementById('hintBox').classList.remove('visible');
+            document.getElementById('solutionBox').classList.remove('visible');
+        }
+
+        function resetBoard() {
+            loadPosition('start');
+        }
+
+        function flipBoard() {
+            isFlipped = !isFlipped;
+            initMainBoard();
+            if (currentPosition !== 'start') {
+                loadPosition(currentPosition);
+            }
+        }
+
+        function showHint() {
+            document.getElementById('hintBox').classList.add('visible');
+        }
+
+        function showSolution() {
+            document.getElementById('solutionBox').classList.add('visible');
+        }
+
+        function toggleComplete(item) {
+            item.classList.toggle('completed');
+            const check = item.querySelector('.progress-check');
+            check.textContent = item.classList.contains('completed') ? '✅' : '⬜';
+        }
+
+        // ===== INITIALIZATION =====
+        window.onload = function() {
+            initHeroBoard();
+            initMainBoard();
+        };
+    </script>
+</body>
+</html>
