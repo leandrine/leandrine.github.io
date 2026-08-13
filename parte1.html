@@ -1,0 +1,1281 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simulado de Estudo - Parte 1 (Nível Desafiador)</title>
+    <style>
+        :root {
+            --primary: #2c3e50;
+            --primary-light: #34495e;
+            --accent: #2980b9;
+            --bg: #f4f7f9;
+            --card-bg: #ffffff;
+            --text: #2d3748;
+            --text-muted: #718096;
+            --border: #e2e8f0;
+            --correct: #27ae60;
+            --incorrect: #c0392b;
+            --warning: #d35400;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+            padding-bottom: 60px;
+        }
+
+        header {
+            background: linear-gradient(135deg, var(--primary), var(--primary-light));
+            color: white;
+            padding: 2rem 1rem;
+            text-align: center;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            position: relative;
+        }
+
+        header h1 {
+            font-size: 1.8rem;
+            margin-bottom: 0.5rem;
+        }
+
+        header p {
+            font-size: 0.95rem;
+            opacity: 0.9;
+        }
+
+        .timer-bar {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            background: #ffffff;
+            border-bottom: 2px solid var(--border);
+            padding: 0.75rem 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+
+        .timer-box {
+            font-size: 1.1rem;
+            font-weight: bold;
+            color: var(--warning);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .progress-box {
+            font-size: 0.95rem;
+            color: var(--text-muted);
+            font-weight: 600;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 2rem auto;
+            padding: 0 1rem;
+        }
+
+        .section-header {
+            background-color: var(--primary);
+            color: white;
+            padding: 0.8rem 1.2rem;
+            border-radius: 8px 8px 0 0;
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-top: 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .section-badge {
+            background: rgba(255,255,255,0.2);
+            padding: 0.2rem 0.6rem;
+            border-radius: 4px;
+            font-size: 0.85rem;
+        }
+
+        .question-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-top: none;
+            padding: 1.5rem;
+            margin-bottom: 0;
+        }
+
+        .question-card:last-of-type {
+            border-radius: 0 0 8px 8px;
+            margin-bottom: 1.5rem;
+        }
+
+        .question-title {
+            font-weight: 600;
+            font-size: 1.05rem;
+            margin-bottom: 0.75rem;
+            color: var(--primary);
+        }
+
+        .question-text {
+            margin-bottom: 1rem;
+            font-size: 1rem;
+        }
+
+        .options-list {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .option-item {
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            padding: 0.75rem 1rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: flex-start;
+            gap: 0.75rem;
+        }
+
+        .option-item:hover {
+            background-color: #edf2f7;
+            border-color: #cbd5e0;
+        }
+
+        .option-item input[type="radio"] {
+            margin-top: 0.25rem;
+            cursor: pointer;
+        }
+
+        .option-label {
+            cursor: pointer;
+            flex: 1;
+        }
+
+        .feedback-box {
+            margin-top: 1rem;
+            padding: 1rem;
+            border-radius: 6px;
+            display: none;
+            font-size: 0.95rem;
+        }
+
+        .feedback-box.correct {
+            background-color: #e8f8f0;
+            border: 1px solid #abebc6;
+            color: #196f3d;
+        }
+
+        .feedback-box.incorrect {
+            background-color: #fadbd8;
+            border: 1px solid #f5b7b1;
+            color: #78281f;
+        }
+
+        .feedback-title {
+            font-weight: bold;
+            margin-bottom: 0.3rem;
+        }
+
+        .action-container {
+            text-align: center;
+            margin: 2.5rem 0;
+        }
+
+        .btn-submit {
+            background-color: var(--accent);
+            color: white;
+            border: none;
+            padding: 1rem 2.5rem;
+            font-size: 1.1rem;
+            font-weight: bold;
+            border-radius: 30px;
+            cursor: pointer;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.15);
+            transition: all 0.2s ease;
+        }
+
+        .btn-submit:hover {
+            background-color: #1f618d;
+            transform: translateY(-2px);
+        }
+
+        .results-card {
+            display: none;
+            background: white;
+            border-radius: 12px;
+            padding: 2rem;
+            text-align: center;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            margin-top: 2rem;
+        }
+
+        .results-score {
+            font-size: 3rem;
+            font-weight: bold;
+            color: var(--primary);
+            margin: 1rem 0;
+        }
+
+        .results-summary {
+            font-size: 1.1rem;
+            color: var(--text-muted);
+            margin-bottom: 1.5rem;
+        }
+
+        @media (max-width: 600px) {
+            .timer-bar {
+                flex-direction: column;
+                gap: 0.5rem;
+                align-items: flex-start;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>Simulado Provão - Parte 1</h1>
+        <p>Artes (5) • Ciências (9) • História (9) • Geografia (9) | Nível Desafiador (12 Anos)</p>
+    </header>
+
+    <div class="timer-bar">
+        <div class="timer-box">
+            ⏱️ Tempo Restante: <span id="timer">01:40:00</span>
+        </div>
+        <div class="progress-box">
+            Respondidas: <span id="answered-count">0</span> / 32
+        </div>
+    </div>
+
+    <div class="container">
+        <form id="quiz-form">
+            
+            <!-- SEÇÃO ARTES -->
+            <div class="section-header">
+                <span>🎨 Artes</span>
+                <span class="section-badge">5 Questões</span>
+            </div>
+
+            <!-- Q1 -->
+            <div class="question-card" id="card-q1">
+                <div class="question-title">Questão 1 (Artes)</div>
+                <div class="question-text">
+                    Durante o Renascimento, artistas como Leonardo da Vinci e Michelangelo revolucionaram a arte europeia utilizando a técnica do <em>chiaroscuro</em> (claro-escuro) e a perspectiva geométrica. Qual era o principal objetivo técnico e filosófico do uso dessas técnicas no contexto do Humanismo?
+                </div>
+                <div class="options-list">
+                    <label class="option-item">
+                        <input type="radio" name="q1" value="A">
+                        <span class="option-label">A) Representar figuras de forma bidimensional e abstrata para focar na religiosidade espiritual.</span>
+                    </label>
+                    <label class="option-item">
+                        <input type="radio" name="q1" value="B">
+                        <span class="option-label">B) Criar ilusão de tridimensionalidade, profundidade e realismo anatômico, valorizando a observação humana e natural.</span>
+                    </label>
+                    <label class="option-item">
+                        <input type="radio" name="q1" value="C">
+                        <span class="option-label">C) Exagerar as cores primárias para expressar sentimentos dramáticos sem preocupação com proporções reais.</span>
+                    </label>
+                    <label class="option-item">
+                        <input type="radio" name="q1" value="D">
+                        <span class="option-label">D) Imitar estritamente a arte egípcia antiga, eliminando sombras e detalhes de fundo.</span>
+                    </label>
+                </div>
+                <div class="feedback-box" id="fb-q1"></div>
+            </div>
+
+            <!-- Q2 -->
+            <div class="question-card" id="card-q2">
+                <div class="question-title">Questão 2 (Artes)</div>
+                <div class="question-text">
+                    Análise a diferença entre <strong>Cores Primárias</strong> e <strong>Cores Secundárias</strong>. Se um artista deseja criar uma composição que transmita forte contraste visual e sensação de vibração utilizando cores complementares, qual dos seguintes pares ele deve escolher?
+                </div>
+                <div class="options-list">
+                    <label class="option-item">
+                        <input type="radio" name="q2" value="A">
+                        <span class="option-label">A) Vermelho e Amarelo</span>
+                    </label>
+                    <label class="option-item">
+                        <input type="radio" name="q2" value="B">
+                        <span class="option-label">B) Azul e Verde</span>
+                    </label>
+                    <label class="option-item">
+                        <input type="radio" name="q2" value="C">
+                        <span class="option-label">C) Azul e Laranja</span>
+                    </label>
+                    <label class="option-item">
+                        <input type="radio" name="q2" value="D">
+                        <span class="option-label">D) Amarelo e Branco</span>
+                    </label>
+                </div>
+                <div class="feedback-box" id="fb-q2"></div>
+            </div>
+
+            <!-- Q3 -->
+            <div class="question-card" id="card-q3">
+                <div class="question-title">Questão 3 (Artes)</div>
+                <div class="question-text">
+                    A Arte Rupestre é uma das manifestações artísticas mais antigas da humanidade. Sobre os materiais e as finalidades das pinturas encontradas em cavernas durante a Pré-História, assinale a alternativa correta:
+                </div>
+                <div class="options-list">
+                    <label class="option-item">
+                        <input type="radio" name="q3" value="A">
+                        <span class="option-label">A) Utilizavam tintas a óleo sintéticas importadas e pintavam apenas para decorar a entrada de suas casas.</span>
+                    </label>
+                    <label class="option-item">
+                        <input type="radio" name="q3" value="B">
+                        <span class="option-label">B) Usavam pigmentos naturais (massa vegetal, sangue, carvão e minerais) associados a rituais mágicos/simbólicos para atrair boa caça.</span>
+                    </label>
+                    <label class="option-item">
+                        <input type="radio" name="q3" value="C">
+                        <span class="option-label">C) As pinturas tinham como único objetivo vender quadros para outras tribos vizinhas.</span>
+                    </label>
+                    <label class="option-item">
+                        <input type="radio" name="q3" value="D">
+                        <span class="option-label">D) Eram feitas exclusivamente por escultores gregos que viajavam pelo interior dos continentes.</span>
+                    </label>
+                </div>
+                <div class="feedback-box" id="fb-q3"></div>
+            </div>
+
+            <!-- Q4 -->
+            <div class="question-card" id="card-q4">
+                <div class="question-title">Questão 4 (Artes)</div>
+                <div class="question-text">
+                    No Teatro, o conceito de <strong>Linguagem Não-Verbal</strong> desempenha papel crucial no palco. Assinale a opção que apresenta APENAS elementos da linguagem não-verbal em uma encenação:
+                </div>
+                <div class="options-list">
+                    <label class="option-item">
+                        <input type="radio" name="q4" value="A">
+                        <span class="option-label">A) Diálogos, monólogos e fala do narrador.</span>
+                    </label>
+                    <label class="option-item">
+                        <input type="radio" name="q4" value="B">
+                        <span class="option-label">B) Texto escrito do roteiro, legenda e dublagem.</span>
+                    </label>
+                    <label class="option-item">
+                        <input type="radio" name="q4" value="C">
+                        <span class="option-label">C) Expressão corporal, figurino, iluminação e sonoplastia.</span>
+                    </label>
+                    <label class="option-item">
+                        <input type="radio" name="q4" value="D">
+                        <span class="option-label">D) Leitura dramática de poemas e canto lírico articulado.</span>
+                    </label>
+                </div>
+                <div class="feedback-box" id="fb-q4"></div>
+            </div>
+
+            <!-- Q5 -->
+            <div class="question-card" id="card-q5">
+                <div class="question-title">Questão 5 (Artes)</div>
+                <div class="question-text">
+                    A Modernismo no Brasil (com destaque para a Semana de Arte Moderna de 1922) buscou renovar as artes plásticas e a literatura. Qual era a principal proposta dos artistas modernistas brasileiros?
+                </div>
+                <div class="options-list">
+                    <label class="option-item">
+                        <input type="radio" name="q5" value="A">
+                        <span class="option-label">A) Copiar fielmente os padrões acadêmicos tradicionais europeus sem alterar nada.</span>
+                    </label>
+                    <label class="option-item">
+                        <input type="radio" name="q5" value="B">
+                        <span class="option-label">B) Romper com o academicismo tradicional, valorizando a identidade nacional e a liberdade de criação.</span>
+                    </label>
+                    <label class="option-item">
+                        <input type="radio" name="q5" value="C">
+                        <span class="option-label">C) Proibir o uso de cores vibrantes e focar apenas no desenho arquitetônico em preto e branco.</span>
+                    </label>
+                    <label class="option-item">
+                        <input type="radio" name="q5" value="D">
+                        <span class="option-label">D) Destruir museus e banir qualquer instrumento musical do país.</span>
+                    </label>
+                </div>
+                <div class="feedback-box" id="fb-q5"></div>
+            </div>
+
+            <!-- SEÇÃO CIÊNCIAS -->
+            <div class="section-header">
+                <span>🔬 Ciências</span>
+                <span class="section-badge">9 Questões</span>
+            </div>
+
+            <!-- Q6 -->
+            <div class="question-card" id="card-q6">
+                <div class="question-title">Questão 6 (Ciências)</div>
+                <div class="question-text">
+                    Considere uma cadeia alimentar terrestre composta por: <em>Capim → Gafanhoto → Sapo → Cobra → Gavião</em>. Se uma contaminação por pesticida não biodegradável atingir essa cadeia, em qual nível trófico será encontrada a <strong>maior concentração desse pesticida</strong> por quilo de organismo (processo de biomagnificação)?
+                </div>
+                <div class="options-list">
+                    <label class="option-item">
+                        <input type="radio" name="q6" value="A">
+                        <span class="option-label">A) Produtores (Capim), pois absorvem a substância diretamente do solo.</span>
+                    </label>
+                    <label class="option-item">
+                        <input type="radio" name="q6" value="B">
+                        <span class="option-label">B) Consumidores Primários (Gafanhoto), pois consomem a maior quantidade de massa vegetal.</span>
+                    </label>
+                    <label class="option-item">
+                        <input type="radio" name="q6" value="C">
+                        <span class="option-label">C) Consumidores Secundários (Sapo), por terem metabolismo mais lento.</span>
+                    </label>
+                    <label class="option-item">
+                        <input type="radio" name="q6" value="D">
+                        <span class="option-label">D) Consumidor de Topo (Gavião), devido ao acúmulo progressivo ao longo dos níveis tróficos.</span>
+                    </label>
+                </div>
+                <div class="feedback-box" id="fb-q6"></div>
+            </div>
+
+            <!-- Q7 -->
+            <div class="question-card" id="card-q7">
+                <div class="question-title">Questão 7 (Ciências)</div>
+                <div class="question-text">
+                    No corpo humano, o sistema circulatório trabalha em conjunto com o respiratório. O sangue venoso (rico em $CO_2$) sai do lado direito do coração e vai até os pulmões, onde ocorre a troca gasosa. Como se chama esse processo de troca de gases nos alvéolos pulmonares e qual vaso conduz o sangue oxigenado de volta ao lado esquerdo do coração?
+                </div>
+                <div class="options-list">
+                    <label class="option-item">
+                        <input type="radio" name="q7" value="A">
+                        <span class="option-label">A) Digestão / Artéria Aorta</span>
+                    </label>
+                    <label class="option-item">
+                        <input type="radio" name="q7" value="B">
+                        <span class="option-label">B) Hematose / Veias Pulmonares</span>
+                    </label>
+                    <label class="option-item">
+                        <input type="radio" name="q7" value="C">
+                        <span class="option-label">C) Filtração / Veia Cava</span>
+                    </label>
+                    <label class="option-item">
+                        <input type="radio" name="q7" value="D">
+                        <span class="option-label">D) Peristaltismo / Artéria Pulmonar</span>
+                    </label>
+                </div>
+                <div class="feedback-box" id="fb-q7"></div>
+            </div>
+
+            <!-- Q8 -->
+            <div class="question-card" id="card-q8">
+                <div class="question-title">Questão 8 (Ciências)</div>
+                <div class="question-text">
+                    Um estudante misturou água, sal totalmente dissolvido, areia e pequenos pedaços de cortiça (cortiços). Qual é a sequência CORRETA de métodos de separação física que ele deve usar para isolar cada componente nessa ordem: primeiro a cortiça, depois a areia e, por fim, o sal da água?
+                </div>
+                <div class="options-list">
+                    <label class="option-item">
+                        <input type="radio" name="q8" value="A">
+                        <span class="option-label">A) Evaporação → Catação → Filtração</span>
+                    </label>
+                    <label class="option-item">
+                        <input type="radio" name="q8" value="B">
+                        <span class="option-label">B) Flotação (ou catação) → Filtração → Destilação simples (ou evaporação)</span>
+                    </label>
+                    <label class="option-item">
+                        <input type="radio" name="q8" value="C">
+                        <span class="option-label">C) Decantação → Peneiração → Magnética</span>
+                    </label>
+                    <label class="option-item">
+                        <input type="radio" name="q8" value="D">
+                        <span class="option-label">D) Centrifugação → Sublimação → Filtração</span>
+                    </label>
+                </div>
+                <div class="feedback-box" id="fb-q8"></div>
+            </div>
+
+            <!-- Q9 -->
+            <div class="question-card" id="card-q9">
+                <div class="question-title">Questão 9 (Ciências)</div>
+                <div class="question-text">
+                    Sobre a célula como unidade fundamental da vida, diferencie as células <strong>Procarióticas</strong> das <strong>Eucarióticas</strong>. Qual estrutura celular está presente APENAS nas células eucarióticas?
+                </div>
+                <div class="options-list">
+                    <label class="option-item">
+                        <input type="radio" name="q9" value="A">
+                        <span class="option-label">A) Membrana plasmática</span>
+                    </label>
+                    <label class="option-item">
+                        <input type="radio" name="q9" value="B">
+                        <span class="option-label">B) Ribossomos</span>
+                    </label>
+                    <label class="option-item">
+                        <input type="radio" name="q9" value="C">
+                        <span class="option-label">C) Material genético (DNA)</span>
+                    </label>
+                    <label class="option-item">
+                        <input type="radio" name="q9" value="D">
+                        <span class="option-label">D) Carioteca (Membrana nuclear delimitando o núcleo organizado)</span>
+                    </label>
+                </div>
+                <div class="feedback-box" id="fb-q9"></div>
+            </div>
+
+            <!-- Q10 -->
+            <div class="question-card" id="card-q10">
+                <div class="question-title">Questão 10 (Ciências)</div>
+                <div class="question-text">
+                    As mudanças de estado físico da matéria dependem de variação de temperatura e pressão. Quando o gelo seco ($CO_2$ sólido) passa diretamente para o estado gasoso sem virar líquido à pressão ambiente, dizemos que ocorreu o fenômeno de:
+                </div>
+                <div class="options-list">
+                    <label class="option-item">
+                        <input type="radio" name="q10" value="A">
+                        <span class="option-label">A) Fusão</span>
+                    </label>
+                    <label class="option-item">
+                        <input type="radio" name="q10" value="B">
+                        <span class="option-label">B) Vaporização</span>
+                    </label>
+                    <label class="option-item">
+                        <input type="radio" name="q10" value="C">
+                        <span class="option-label">C) Sublimação</span>
+                    </label>
+                    <label class="option-item">
+                        <input type="radio" name="q10" value="D">
+                        <span class="option-label">D) Condensação</span>
+                    </label>
+                </div>
+                <div class="feedback-box" id="fb-q10"></div>
+            </div>
+
+            <!-- Q11 -->
+            <div class="question-card" id="card-q11">
+                <div class="question-title">Questão 11 (Ciências)</div>
+                <div class="question-text">
+                    O efeito estufa é um processo natural vital para manter a Terra aquecida. No entanto, a intensificação desse efeito por ações humanas causa o aquecimento global. Qual gás, liberado massivamente pela queima de combustíveis fósseis, é o principal responsável por essa intensificação artificial?
+                </div>
+                <div class="options-list">
+                    <label class="option-item">
+                        <input type="radio" name="q11" value="A">
+                        <span class="option-label">A) Gás Oxigênio ($O_2$)</span>
+                    </label>
+                    <label class="option-item">
+                        <input type="radio" name="q11" value="B">
+                        <span class="option-label">B) Dióxido de Carbono ($CO_2$)</span>
+                    </label>
+                    <label class="option-item">
+                        <input type="radio" name="q11" value="C">
+                        <span class="option-label">C) Gás Nitrogênio ($N_2$)</span>
+                    </label>
+                    <label class="option-item">
+                        <input type="radio" name="q11" value="D">
+                        <span class="option-label">D) Gás Hélio ($He$)</span>
+                    </label>
+                </div>
+                <div class="feedback-box" id="fb-q11"></div>
+            </div>
+
+            <!-- Q12 -->
+            <div class="question-card" id="card-q12">
+                <div class="question-title">Questão 12 (Ciências)</div>
+                <div class="question-text">
+                    Na fotossíntese, os organismos autotróficos (como plantas e algas) utilizam luz solar, água e gás carbônico para produzir energia. Quais são os dois produtos FINAIS primários resultantes desse processo?
+                </div>
+                <div class="options-list">
+                    <label class="option-item">
+                        <input type="radio" name="q12" value="A">
+                        <span class="option-label">A) Glicose (açúcar) e Oxigênio ($O_2$)</span>
+                    </label>
+                    <label class="option-item">
+                        <input type="radio" name="q12" value="B">
+                        <span class="option-label">B) Sal mineral e Nitrogênio</span>
+                    </label>
+                    <label class="option-item">
+                        <input type="radio" name="q12" value="C">
+                        <span class="option-label">C) Proteína e Gás Carbônico</span>
+                    </label>
+                    <label class="option-item">
+                        <input type="radio" name="q12" value="D">
+                        <span class="option-label">D) Água pura e Carvão</span>
+                    </label>
+                </div>
+                <div class="feedback-box" id="fb-q12"></div>
+            </div>
+
+            <!-- Q13 -->
+            <div class="question-card" id="card-q13">
+                <div class="question-title">Questão 13 (Ciências)</div>
+                <div class="question-text">
+                    O sistema nervoso humano é dividido em Sistema Nervoso Central (SNC) e Periférico (SNP). Qual órgão do SNC é o principal responsável pelo controle do equilíbrio corporal e pela coordenação motora dos movimentos finos?
+                </div>
+                <div class="options-list">
+                    <label class="option-item">
+                        <input type="radio" name="q13" value="A">
+                        <span class="option-label">A) Cérebro</span>
+                    </label>
+                    <label class="option-item">
+                        <input type="radio" name="q13" value="B">
+                        <span class="option-label">B) Cerebelo</span>
+                    </label>
+                    <label class="option-item">
+                        <input type="radio" name="q13" value="C">
+                        <span class="option-label">C) Bulbo</span>
+                    </label>
+                    <label class="option-item">
+                        <input type="radio" name="q13" value="D">
+                        <span class="option-label">D) Médula Espinhal</span>
+                    </label>
+                </div>
+                <div class="feedback-box" id="fb-q13"></div>
+            </div>
+
+            <!-- Q14 -->
+            <div class="question-card" id="card-q14">
+                <div class="question-title">Questão 14 (Ciências)</div>
+                <div class="question-text">
+                    Qual das alternativas apresenta uma diferença fundamental entre as vacinas e os soros imunológicos?
+                </div>
+                <div class="options-list">
+                    <label class="option-item">
+                        <input type="radio" name="q14" value="A">
+                        <span class="option-label">A) A vacina contém anticorpos prontos (ação curativa rápida), enquanto o soro estimula o corpo a produzir anticorpos (ação preventiva).</span>
+                    </label>
+                    <label class="option-item">
+                        <input type="radio" name="q14" value="B">
+                        <span class="option-label">B) A vacina estimula a imunidade ativa (preventiva, com memória imunológica), enquanto o soro fornece anticorpos prontos (imunidade passiva, curativa imediata).</span>
+                    </label>
+                    <label class="option-item">
+                        <input type="radio" name="q14" value="C">
+                        <span class="option-label">C) Ambos têm exatamente a mesma função e composição, mudando apenas a forma de aplicação.</span>
+                    </label>
+                    <label class="option-item">
+                        <input type="radio" name="q14" value="D">
+                        <span class="option-label">D) O soro imunológico serve para prevenir viroses e a vacina é usada apenas em picadas de cobras peçonhentas.</span>
+                    </label>
+                </div>
+                <div class="feedback-box" id="fb-q14"></div>
+            </div>
+
+            <!-- SEÇÃO HISTÓRIA -->
+            <div class="section-header">
+                <span>📜 História</span>
+                <span class="section-badge">9 Questões</span>
+            </div>
+
+            <!-- Q15 -->
+            <div class="question-card" id="card-q15">
+                <div class="question-title">Questão 15 (História)</div>
+                <div class="question-text">
+                    Na Grécia Antiga, Atenas e Esparta representavam modelos de sociedade radicalmente opostos. Enquanto Esparta focava na formação militar rigorosa e na oligarquia, Atenas destacou-se pelo desenvolvimento da:
+                </div>
+                <div class="options-list">
+                    <label class="option-item">
+                        <input type="radio" name="q15" value="A">
+                        <span class="option-label">A) Democracia direta, em que cidadãos atenientes participavam ativamente das decisões na Eclésia.</span>
+                    </label>
+                    <label class="option-item">
+                        <input type="radio" name="q15" value="B">
+                        <span class="option-label">B) Monarquia hereditária absoluta sem assembleias de cidadãos.</span>
+                    </label>
+                    <label class="option-item">
+                        <input type="radio" name="q15" value="C">
+                        <span class="option-label">C) Teocracia militar inspirada nos imperadores egípcios.</span>
+                    </label>
+                    <label class="option-item">
+                        <input type="radio" name="q15" value="D">
+                        <span class="option-label">D) Sociedade sem classes, onde mulheres e escravos tinham os mesmos direitos políticos que os homens.</span>
+                    </label>
+                </div>
+                <div class="feedback-box" id="fb-q15"></div>
+            </div>
+
+            <!-- Q16 -->
+            <div class="question-card" id="card-q16">
+                <div class="question-title">Questão 16 (História)</div>
+                <div class="question-text">
+                    O Feudalismo foi a estrutura socioeconômica dominante na Europa Ocidental durante a Idade Média. Qual das opções descreve corretamente as obrigações dos servos conhecidas como <strong>Corveia</strong> e <strong>Tostão/Talha</strong>?
+                </div>
+                <div class="options-list">
+                    <label class="option-item">
+                        <input type="radio" name="q16" value="A">
+                        <span class="option-label">A) Corveia: imposto pago em moedas de ouro; Talha: serviço militar obrigatório nas Cruzadas.</span>
+                    </label>
+                    <label class="option-item">
+                        <input type="radio" name="q16" value="B">
+                        <span class="option-label">B) Corveia: trabalho gratuito nas terras do senhor feudal durante alguns dias da semana; Talha: entrega de parte da produção do manso servil ao senhor.</span>
+                    </label>
+                    <label class="option-item">
+                        <input type="radio" name="q16" value="C">
+                        <span class="option-label">C) Corveia: direito do servo de virar nobre; Talha: taxa para uso do moinho do rei.</span>
+                    </label>
+                    <label class="option-item">
+                        <input type="radio" name="q16" value="D">
+                        <span class="option-label">D) Ambas eram leis que proibiam os nobres de cobrarem impostos dos camponeses.</span>
+                    </label>
+                </div>
+                <div class="feedback-box" id="fb-q16"></div>
+            </div>
+
+            <!-- Q17 -->
+            <div class="question-card" id="card-q17">
+                <div class="question-title">Questão 17 (História)</div>
+                <div class="question-text">
+                    As Grandes Navegações dos séculos XV e XVI expandiram os horizontes do comércio europeu. Quais foram os dois principais fatores socioeconômicos que impulsionaram pioneiramente Portugal nessa expansão marítima?
+                </div>
+                <div class="options-list">
+                    <label class="option-item">
+                        <input type="radio" name="q17" value="A">
+                        <span class="option-label">A) Falta de acesso ao mar e aliança militar com os turcos otomanos.</span>
+                    </label>
+                    <label class="option-item">
+                        <input type="radio" name="q17" value="B">
+                        <span class="option-label">B) Centralização política precoce (monarquia unificada) e busca por uma nova rota comercial para as especiarias das Índias.</span>
+                    </label>
+                    <label class="option-item">
+                        <input type="radio" name="q17" value="C">
+                        <span class="option-label">C) Desejo de abandonar a Europa por causa do clima frio e colonizar o Ártico.</span>
+                    </label>
+                    <label class="option-item">
+                        <input type="radio" name="q17" value="D">
+                        <span class="option-label">D) Apenas o interesse em encontrar terras desertas para plantação de trigo.</span>
+                    </label>
+                </div>
+                <div class="feedback-box" id="fb-q17"></div>
+            </div>
+
+            <!-- Q18 -->
+            <div class="question-card" id="card-q18">
+                <div class="question-title">Questão 18 (História)</div>
+                <div class="question-text">
+                    A economia do Brasil Colonial nos séculos XVI e XVII esteve fundamentada no ciclo do açúcar. Esse modelo apoiava-se no sistema de <em>Plantation</em>. Quais eram as características centrais do sistema de plantation?
+                </div>
+                <div class="options-list">
+                    <label class="option-item">
+                        <input type="radio" name="q18" value="A">
+                        <span class="option-label">A) Pequena propriedade, policultura, trabalho assalariado e mercado interno.</span>
+                    </label>
+                    <label class="option-item">
+                        <input type="radio" name="q18" value="B">
+                        <span class="option-label">B) Latifúndio (grande propriedade), monocultura, mão de obra escravizada e voltado à exportação.</span>
+                    </label>
+                    <label class="option-item">
+                        <input type="radio" name="q18" value="C">
+                        <span class="option-label">C) Cooperativas agrícolas de trabalhadores livres focadas no comércio local.</span>
+                    </label>
+                    <label class="option-item">
+                        <input type="radio" name="q18" value="D">
+                        <span class="option-label">D) Terras comunitárias indígenas administradas diretamente pela Coroa Holandesa.</span>
+                    </label>
+                </div>
+                <div class="feedback-box" id="fb-q18"></div>
+            </div>
+
+            <!-- Q19 -->
+            <div class="question-card" id="card-q19">
+                <div class="question-title">Questão 19 (História)</div>
+                <div class="question-text">
+                    A Reforma Protestante, iniciada por Martinho Lutero em 1517 no Sacro Império Romano-Germânico, criticava duramente certas práticas da Igreja Católica da época. Qual foi a principal prática combatida por Lutero em suas 95 Teses?
+                </div>
+                <div class="options-list">
+                    <label class="option-item">
+                        <input type="radio" name="q19" value="A">
+                        <span class="option-label">A) A venda de indulgências (perdão dos pecados em troca de dinheiro).</span>
+                    </label>
+                    <label class="option-item">
+                        <input type="radio" name="q19" value="B">
+                        <span class="option-label">B) A tradução da Bíblia para as línguas nacionais populares.</span>
+                    </label>
+                    <label class="option-item">
+                        <input type="radio" name="q19" value="C">
+                        <span class="option-label">C) A construção de hospitais gratuitos para os camponeses.</span>
+                    </label>
+                    <label class="option-item">
+                        <input type="radio" name="q19" value="D">
+                        <span class="option-label">D) A proibição das missas em latim.</span>
+                    </label>
+                </div>
+                <div class="feedback-box" id="fb-q19"></div>
+            </div>
+
+            <!-- Q20 -->
+            <div class="question-card" id="card-q20">
+                <div class="question-title">Questão 20 (História)</div>
+                <div class="question-text">
+                    A escravização de africanos trazidos à força para o Brasil colonial gerou forte resistência ao longo de séculos. A principal forma de organização comunitária e resistência territorial criada por escravizados fugidos foi:
+                </div>
+                <div class="options-list">
+                    <label class="option-item">
+                        <input type="radio" name="q20" value="A">
+                        <span class="option-label">A) Os Feudos</span>
+                    </label>
+                    <label class="option-item">
+                        <input type="radio" name="q20" value="B">
+                        <span class="option-label">B) Os Quilombos (como o Quilombo dos Palmares)</span>
+                    </label>
+                    <label class="option-item">
+                        <input type="radio" name="q20" value="C">
+                        <span class="option-label">C) As Câmaras Municipais</span>
+                    </label>
+                    <label class="option-item">
+                        <input type="radio" name="q20" value="D">
+                        <span class="option-label">D) As Feiras Livres da Corte</span>
+                    </label>
+                </div>
+                <div class="feedback-box" id="fb-q20"></div>
+            </div>
+
+            <!-- Q21 -->
+            <div class="question-card" id="card-q21">
+                <div class="question-title">Questão 21 (História)</div>
+                <div class="question-text">
+                    A Revolução Industrial teve início na Inglaterra na segunda metade do século XVIII. Qual invenção tecnológica e qual fonte de energia foram os pilares dessa primeira fase da industrialização?
+                </div>
+                <div class="options-list">
+                    <label class="option-item">
+                        <input type="radio" name="q21" value="A">
+                        <span class="option-label">A) Computador e energia solar</span>
+                    </label>
+                    <label class="option-item">
+                        <input type="radio" name="q21" value="B">
+                        <span class="option-label">B) Motor a vapor e carvão mineral</span>
+                    </label>
+                    <label class="option-item">
+                        <input type="radio" name="q21" value="C">
+                        <span class="option-label">C) Motor a combustão interna e petróleo</span>
+                    </label>
+                    <label class="option-item">
+                        <input type="radio" name="q21" value="D">
+                        <span class="option-label">D) Moinho de vento e tração animal</span>
+                    </label>
+                </div>
+                <div class="feedback-box" id="fb-q21"></div>
+            </div>
+
+            <!-- Q22 -->
+            <div class="question-card" id="card-q22">
+                <div class="question-title">Questão 22 (História)</div>
+                <div class="question-text">
+                    O Egito Antigo desenvolveu uma civilização próspera às margens do Rio Nilo, cercada por regiões desérticas. Qual era o fator natural periódico do Rio Nilo que garantia a fertilidade das terras para a agricultura?
+                </div>
+                <div class="options-list">
+                    <label class="option-item">
+                        <input type="radio" name="q22" value="A">
+                        <span class="option-label">A) As cheias anuais que depositavam o húmus (massa fértil) no solo das margens.</span>
+                    </label>
+                    <label class="option-item">
+                        <input type="radio" name="q22" value="B">
+                        <span class="option-label">B) Os maremotos contínuos que traziam sal do Mar Mediterrâneo.</span>
+                    </label>
+                    <label class="option-item">
+                        <input type="radio" name="q22" value="C">
+                        <span class="option-label">C) As congelamentos de inverno que matavam as pragas das lavouras.</span>
+                    </label>
+                    <label class="option-item">
+                        <input type="radio" name="q22" value="D">
+                        <span class="option-label">D) O desvio manual de águas através de tubulações de ferro modernas.</span>
+                    </label>
+                </div>
+                <div class="feedback-box" id="fb-q22"></div>
+            </div>
+
+            <!-- Q23 -->
+            <div class="question-card" id="card-q23">
+                <div class="question-title">Questão 23 (História)</div>
+                <div class="question-text">
+                    Em 1822, o Brasil declarou sua independência de Portugal, tornando-se uma Monarquia sob o governo de Dom Pedro I. Qual foi a principal consequência dessa forma de transição para a estrutura social do país?
+                </div>
+                <div class="options-list">
+                    <label class="option-item">
+                        <input type="radio" name="q23" value="A">
+                        <span class="option-label">A) A imediata abolição da escravidão e distribuição de terras para os camponeses.</span>
+                    </label>
+                    <label class="option-item">
+                        <input type="radio" name="q23" value="B">
+                        <span class="option-label">B) A manutenção da estrutura agroexportadora, do latifúndio e do trabalho escravo sob o controle das elites agrárias.</span>
+                    </label>
+                    <label class="option-item">
+                        <input type="radio" name="q23" value="C">
+                        <span class="option-label">C) A transformação do Brasil em uma República com sufrágio universal imediato.</span>
+                    </label>
+                    <label class="option-item">
+                        <input type="radio" name="q23" value="D">
+                        <span class="option-label">D) A anexação do Brasil pelos Estados Unidos.</span>
+                    </label>
+                </div>
+                <div class="feedback-box" id="fb-q23"></div>
+            </div>
+
+            <!-- SEÇÃO GEOGRAFIA -->
+            <div class="section-header">
+                <span>🌍 Geografia</span>
+                <span class="section-badge">9 Questões</span>
+            </div>
+
+            <!-- Q24 -->
+            <div class="question-card" id="card-q24">
+                <div class="question-title">Questão 24 (Geografia)</div>
+                <div class="question-text">
+                    A Teoria da Tectônica de Placas explica a formação do relevo terrestre e a ocorrência de terremotos. A Cordilheira dos Andes na América do Sul é resultado de qual tipo de movimento entre placas tectônicas?
+                </div>
+                <div class="options-list">
+                    <label class="option-item">
+                        <input type="radio" name="q24" value="A">
+                        <span class="option-label">A) Divergente (afastamento entre a Placa Sul-Americana e Africana).</span>
+                    </label>
+                    <label class="option-item">
+                        <input type="radio" name="q24" value="B">
+                        <span class="option-label">B) Convergente (choque/subducção entre a Placa de Nazca e a Placa Sul-Americana).</span>
+                    </label>
+                    <label class="option-item">
+                        <input type="radio" name="q24" value="C">
+                        <span class="option-label">C) Transformante (deslizamento lateral sem choque de massas).</span>
+                    </label>
+                    <label class="option-item">
+                        <input type="radio" name="q24" value="D">
+                        <span class="option-label">D) Inexistente (a região dos Andes não fica sobre limites de placas).</span>
+                    </label>
+                </div>
+                <div class="feedback-box" id="fb-q24"></div>
+            </div>
+
+            <!-- Q25 -->
+            <div class="question-card" id="card-q25">
+                <div class="question-title">Questão 25 (Geografia)</div>
+                <div class="question-text">
+                    Em Cartografia, a escala nos mostra a relação de proporção entre o mapa e a realidade. Comparando o Mapa A (Escala $1 : 50.000$) com o Mapa B (Escala $1 : 5.000.000$), qual das afirmações é correta?
+                </div>
+                <div class="options-list">
+                    <label class="option-item">
+                        <input type="radio" name="q25" value="A">
+                        <span class="option-label">A) O Mapa A tem uma escala menor e mostra uma área gigante com poucos detalhes (ex: mapa mundi).</span>
+                    </label>
+                    <label class="option-item">
+                        <input type="radio" name="q25" value="B">
+                        <span class="option-label">B) O Mapa A tem uma escala maior e oferece maior nível de detalhamento de uma área menor (ex: mapa de um bairro).</span>
+                    </label>
+                    <label class="option-item">
+                        <input type="radio" name="q25" value="C">
+                        <span class="option-label">C) Ambos os mapas mostram exatamente o mesmo nível de detalhe sem alteração.</span>
+                    </label>
+                    <label class="option-item">
+                        <input type="radio" name="q25" value="D">
+                        <span class="option-label">D) A escala $1 : 5.000.000$ amplia a imagem 5 milhões de vezes mais que a realidade.</span>
+                    </label>
+                </div>
+                <div class="feedback-box" id="fb-q25"></div>
+            </div>
+
+            <!-- Q26 -->
+            <div class="question-card" id="card-q26">
+                <div class="question-title">Questão 26 (Geografia)</div>
+                <div class="question-text">
+                    O Brasil possui diversificados biomas terrestres. Qual bioma é caracterizado por clima semiárido, vegetação xerófila (adaptada à seca, com espinhos e cactos) e solos rasos?
+                </div>
+                <div class="options-list">
+                    <label class="option-item">
+                        <input type="radio" name="q26" value="A">
+                        <span class="option-label">A) Floresta Amazônica</span>
+                    </label>
+                    <label class="option-item">
+                        <input type="radio" name="q26" value="B">
+                        <span class="option-label">B) Caatinga</span>
+                    </label>
+                    <label class="option-item">
+                        <input type="radio" name="q26" value="C">
+                        <span class="option-label">C) Mata Atlântica</span>
+                    </label>
+                    <label class="option-item">
+                        <input type="radio" name="q26" value="D">
+                        <span class="option-label">D) Pampas</span>
+                    </label>
+                </div>
+                <div class="feedback-box" id="fb-q26"></div>
+            </div>
+
+            <!-- Q27 -->
+            <div class="question-card" id="card-q27">
+                <div class="question-title">Questão 27 (Geografia)</div>
+                <div class="question-text">
+                    A dinâmica populacional brasileira passou por intensa mudança no século XX devido ao **Éxodo Rural**. O que é o éxodo rural e qual foi sua principal consequência nas grandes metrópoles?
+                </div>
+                <div class="options-list">
+                    <label class="option-item">
+                        <input type="radio" name="q27" value="A">
+                        <span class="option-label">A) Migração da cidade para o campo; provocou esvaziamento das zonas urbanas.</span>
+                    </label>
+                    <label class="option-item">
+                        <input type="radio" name="q27" value="B">
+                        <span class="option-label">B) Migração do campo para a cidade; acelerou a urbanização desordenada e problemas como favelização e trânsito.</span>
+                    </label>
+                    <label class="option-item">
+                        <input type="radio" name="q27" value="C">
+                        <span class="option-label">C) Migração entre diferentes países; diminuiu a população do Brasil.</span>
+                    </label>
+                    <label class="option-item">
+                        <input type="radio" name="q27" value="D">
+                        <span class="option-label">D) Deslocamento diário para estudo; acabou com o desemprego urbano.</span>
+                    </label>
+                </div>
+                <div class="feedback-box" id="fb-q27"></div>
+            </div>
+
+            <!-- Q28 -->
+            <div class="question-card" id="card-q28">
+                <div class="question-title">Questão 28 (Geografia)</div>
+                <div class="question-text">
+                    A latitude e a altitude são dois fatores climáticos fundamentais. De modo geral, o que acontece com a temperatura média à medida que **aumentamos a altitude** (subimos uma montanha) ou **aumentamos a latitude** (nos afastamos da Linha do Equador)?
+                </div>
+                <div class="options-list">
+                    <label class="option-item">
+                        <input type="radio" name="q28" value="A">
+                        <span class="option-label">A) A temperatura aumenta em ambos os casos.</span>
+                    </label>
+                    <label class="option-item">
+                        <input type="radio" name="q28" value="B">
+                        <span class="option-label">B) A temperatura diminui em ambos os casos.</span>
+                    </label>
+                    <label class="option-item">
+                        <input type="radio" name="q28" value="C">
+                        <span class="option-label">C) A temperatura permanece rigorosamente constante.</span>
+                    </label>
+                    <label class="option-item">
+                        <input type="radio" name="q28" value="D">
+                        <span class="option-label">D) A temperatura cai na latitude e sobe na altitude.</span>
+                    </label>
+                </div>
+                <div class="feedback-box" id="fb-q28"></div>
+            </div>
+
+            <!-- Q29 -->
+            <div class="question-card" id="card-q29">
+                <div class="question-title">Questão 29 (Geografia)</div>
+                <div class="question-text">
+                    A matriz energética mundial ainda é predominantemente fóssil. Assinale a opção que contém APENAS fontes de energia consideradas **renováveis e limpas**:
+                </div>
+                <div class="options-list">
+                    <label class="option-item">
+                        <input type="radio" name="q29" value="A">
+                        <span class="option-label">A) Petróleo, Gás Natural e Carvão Mineral.</span>
+                    </label>
+                    <label class="option-item">
+                        <input type="radio" name="q29" value="B">
+                        <span class="option-label">B) Solar, Eólica e Hidrelétrica.</span>
+                    </label>
+                    <label class="option-item">
+                        <input type="radio" name="q29" value="C">
+                        <span class="option-label">C) Nuclear, Petróleo e Xisto.</span>
+                    </label>
+                    <label class="option-item">
+                        <input type="radio" name="q29" value="D">
+                        <span class="option-label">D) Diesel, Eólica e Carvão vegetal.</span>
+                    </label>
+                </div>
+                <div class="feedback-box" id="fb-q29"></div>
+            </div>
+
+            <!-- Q30 -->
+            <div class="question-card" id="card-q30">
+                <div class="question-title">Questão 30 (Geografia)</div>
+                <div class="question-text">
+                    Qual das alternativas abaixo explica corretamente a ocorrência das estações do ano na Terra?
+                </div>
+                <div class="options-list">
+                    <label class="option-item">
+                        <input type="radio" name="q30" value="A">
+                        <span class="option-label">A) Exclusivamente pela variação da distância entre a Terra e o Sol ao longo do ano.</span>
+                    </label>
+                    <label class="option-item">
+                        <input type="radio" name="q30" value="B">
+                        <span class="option-label">B) Pela combinação do movimento de translação da Terra ao redor do Sol com a inclinação do seu eixo de rotação.</span>
+                    </label>
+                    <label class="option-item">
+                        <input type="radio" name="q30" value="C">
+                        <span class="option-label">C) Apenas pelo movimento de rotação diário da Terra em torno de si mesma.</span>
+                    </label>
+                    <label class="option-item">
+                        <input type="radio" name="q30" value="D">
+                        <span class="option-label">D) Pelas fases da Lua que alteram a temperatura do oceano.</span>
+                    </label>
+                </div>
+                <div class="feedback-box" id="fb-q30"></div>
+            </div>
+
+            <!-- Q31 -->
+            <div class="question-card" id="card-q31">
+                <div class="question-title">Questão 31 (Geografia)</div>
+                <div class="question-text">
+                    A Bacia Hidrográfica do Rio Amazonas é a maior bacia hidrográfica do planeta. Qual é a principal característica do regime de alimentação desse rio principal (Rio Amazonas)?
+                </div>
+                <div class="options-list">
+                    <label class="option-item">
+                        <input type="radio" name="q31" value="A">
+                        <span class="option-label">A) Regime exclusivamente nival (neve derretida das montanhas).</span>
+                    </label>
+                    <label class="option-item">
+                        <input type="radio" name="q31" value="B">
+                        <span class="option-label">B) Regime misto (pluvial pelas chuvas da região e nival pelo derretimento de geleiras nos Andes).</span>
+                    </label>
+                    <label class="option-item">
+                        <input type="radio" name="q31" value="C">
+                        <span class="option-label">C) Regime artificial alimentado por represas e canais irrigados.</span>
+                    </label>
+                    <label class="option-item">
+                        <input type="radio" name="q31" value="D">
+                        <span class="option-label">D) Rio temporário que seca completamente no verão.</span>
+                    </label>
+                </div>
+                <div class="feedback-box" id="fb-q31"></div>
+            </div>
+
+            <!-- Q32 -->
+            <div class="question-card" id="card-q32">
+                <div class="question-title">Questão 32 (Geografia)</div>
+                <div class="question-text">
+                    O processo de globalização conectou os mercados e culturas globais. No entanto, qual das opções aponta uma contradição ou impacto negativo desse processo?
+                </div>
+                <div class="options-list">
+                    <label class="option-item">
+                        <input type="radio" name="q32" value="A">
+                        <span class="option-label">A) O fim completo de todas as fronteiras e a facilidade de migração igualitária para todos os povos.</span>
+                    </label>
+                    <label class="option-item">
+                        <input type="radio" name="q32" value="B">
+                        <span class="option-label">B) O aumento da desigualdade socioeconômica entre países desenvolvidos e em desenvolvimento e o risco de padronização cultural.</span>
+                    </label>
+                    <label class="option-item">
+                        <input type="radio" name="q32" value="C">
+                        <span class="option-label">C) O encerramento imediato de todas as tecnologias de transporte rápido.</span>
+                    </label>
+                    <label class="option-item">
+                        <input type="radio" name="q32" value="D">
+                        <span class="option-label">D) O isolamento total do comércio entre diferentes continentes.</span>
+                    </label>
+                </div>
+                <div class="feedback-box" id="fb-q32"></div>
+            </div>
+
+            <div class="action-container">
+                <button type="button" class="btn-submit" onclick="submitQuiz()">Finalizar e Corrigir Simulado</button>
+            </div>
+        </form>
+
+        <div class="results-card" id="results-card">
+            <h2>Resultado do Simulado</h2>
+            <div class="results-score" id="score-display">0 / 32</div>
+            <p class="results-summary" id="feedback-summary">Carregando resultado...</p>
+            <button class="btn-submit" onclick="window.scrollTo({top: 0, behavior: 'smooth'});">Revisar Questões</button>
+        </div>
+    </div>
+
+    <script>
+        const answers = {
+            q1: { correct: 'B', exp: 'O Renascimento valorizava a ciência e a anatomia humana (Humanismo), utilizando a perspectiva e a luz/sombra para dar tridimensionalidade.' },
+            q2: { correct: 'C', exp: 'Azul (primária) e Laranja (secundária formada por vermelho + amarelo) são cores complementares e opostas no círculo cromático.' },
+            q3: { correct: 'B', exp: 'As pinturas rupestres eram feitas com pigmentos naturais e possuíam forte caráter ritualístico e simbólico ligado à sobrevivência.' },
+            q4: { correct: 'C', exp: 'Elementos visuais, corporais e sonoros sem uso da palavra falada ou escrita constituem a linguagem não-verbal no teatro.' },
+            q5: { correct: 'B', exp: 'O Modernismo de 1922 buscava romper com as regras formais europeias antigas e construir uma arte com identidade autêntica brasileira.' },
+            q6: { correct: 'D', exp: 'Pesticidas não biodegradáveis acumulam-se ao longo da cadeia alimentar (biomagnificação), atingindo concentração máxima no topo da cadeia.' },
+            q7: { correct: 'B', exp: 'A troca de gases nos alvéolos chama-se hematose. O sangue oxigenado retorna ao coração pelas veias pulmonares.' },
+            q8: { correct: 'B', exp: 'A cortiça flutua (flotação/catação), a areia insolúvel é filtrada (filtração) e o sal dissolvido é recuperado por evaporação/destilação.' },
+            q9: { correct: 'D', exp: 'Procariontes (como bactérias) não possuem núcleo individualizado por carioteca, diferentemente das células eucariontes.' },
+            q10: { correct: 'C', exp: 'Sublimação é a passagem direta da matéria do estado sólido para o gasoso, como ocorre com o gelo seco e a naftalina.' },
+            q11: { correct: 'B', exp: 'A queima de carvão, derivados do petróleo e gás natural libera grandes quantidades de dióxido de carbono ($CO_2$), agravando o efeito estufa.' },
+            q12: { correct: 'A', exp: 'A fotossíntese consome $CO_2$ e $H_2O$ com energia luminosa e gera glicose (alimento da planta) e libera $O_2$ para a atmosfera.' },
+            q13: { correct: 'B', exp: 'O cerebelo coordena a precisão dos movimentos motores, tônus muscular e manutenção do equilíbrio corporal.' },
+            q14: { correct: 'B', exp: 'Vacina estimula a produção própria de anticorpos e memória (ativa/preventiva); o soro injeta anticorpos prontos para emergências (passiva/curativa).' },
+            q15: { correct: 'A', exp: 'Atenas foi o berço da democracia direta antiga, na qual os cidadãos debatiam e votavam leis diretamente na Eclésia.' },
+            q16: { correct: 'B', exp: 'A corveia era o trabalho obrigatório nas terras do senhor (manso senhorial) e a talha era a fração da produção entregue ao nobre.' },
+            q17: { correct: 'B', exp: 'Portugal unificou seu reino muito antes dos vizinhos e buscou contornar o monopólio italiano/otomano no Mediterrâneo para chegar às Índias.' },
+            q18: { correct: 'B', exp: 'O sistema colonial de plantation baseava-se em extensas propriedades monocultoras (como a cana), trabalho escravo e foco na exportação.' },
+            q19: { correct: 'A', exp: 'As 95 Teses de Lutero criticavam fortemente a venda de indulgências (certificados de perdão) pela Igreja para financiar obras em Roma.' },
+            q20: { correct: 'B', exp: 'Os quilombos organizavam-se como comunidades autônomas de resistência cultural, social e militar contra a escravidão.' },
+            q21: { correct: 'B', exp: 'A máquina a vapor aperfeiçoada por James Watt e o uso do carvão mineral impulsionaram as primeiras fábricas têxteis da Inglaterra.' },
+            q22: { correct: 'A', exp: 'As cheias do Nilo depositavam uma camada fértil chamada húmus/limo nas margens, permitindo a abundância agrícola no deserto.' },
+            q23: { correct: 'B', exp: 'A independência liderada pelo próprio herdeiro português manteve a ordem social latifundiária e a escravidão praticamente intactas.' },
+            q24: { correct: 'B', exp: 'O choque entre a Placa Sul-Americana e a Placa de Nazca (convergência) causou o enrugamento da crosta e a formação dos Andes.' },
+            q25: { correct: 'B', exp: 'Escalas com denominadores menores ($1:50.000$) são maiores e mostram áreas menores com riqueza de detalhes reais.' },
+            q26: { correct: 'B', exp: 'A Caatinga é o bioma exclusivo do Brasil com adaptação ao clima semiárido, caracterizada por plantas xerófilas.' },
+            q27: { correct: 'B', exp: 'O êxodo rural transfere populações do campo para a cidade, gerando rápido crescimento urbano e desafios de infraestrutura.' },
+            q28: { correct: 'B', exp: 'Quanto maior a altitude (ar mais rarefeito) ou maior a latitude (menor insolação polar), menor é a temperatura média.' },
+            q29: { correct: 'B', exp: 'Energia solar, eólica (ventos) e hidrelétrica (águas) redefinem matrizes limpas por utilizarem recursos naturais inagotáveis sem emissão massiva de carbono.' },
+            q30: { correct: 'B', exp: 'As estações ocorrem porque o eixo da Terra é inclinado em relação ao seu plano de órbita (translação) ao redor do Sol.' },
+            q31: { correct: 'B', exp: 'O Rio Amazonas recebe água tanto das chuvas tropicais abundantes (pluvial) quanto do derretimento da neve nos Andes (nival).' },
+            q32: { correct: 'B', exp: 'Embora integre mercados, a globalização pode intensificar disparidades econômicas e aculturamento de identidades locais.' }
+        };
+
+        let timeLeft = 100 * 60; // 1h40min em segundos
+        let timerInterval;
+
+        function startTimer() {
+            const timerEl = document.getElementById('timer');
+            timerInterval = setInterval(() => {
+                if (timeLeft <= 0) {
+                    clearInterval(timerInterval);
+                    alert('Tempo esgotado! Seu simulado será corrigido automaticamente.');
+                    submitQuiz();
+                    return;
+                }
+                timeLeft--;
+                const h = Math.floor(timeLeft / 3600);
+                const m = Math.floor((timeLeft % 3600) / 60);
+                const s = timeLeft % 60;
+                timerEl.textContent = `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+            }, 1000);
+        }
+
+        function updateProgress() {
+            const form = document.getElementById('quiz-form');
+            const answered = new Set();
+            const inputs = form.querySelectorAll('input[type="radio"]:checked');
+            inputs.forEach(input => answered.add(input.name));
+            document.getElementById('answered-count').textContent = answered.size;
+        }
+
+        document.querySelectorAll('input[type="radio"]').forEach(radio => {
+            radio.addEventListener('change', updateProgress);
+        });
+
+        function submitQuiz() {
+            clearInterval(timerInterval);
+            let score = 0;
+            const total = 32;
+
+            for (let i = 1; i <= total; i++) {
+                const qKey = 'q' + i;
+                const selected = document.querySelector(`input[name="${qKey}"]:checked`);
+                const fbBox = document.getElementById(`fb-${qKey}`);
+                const qData = answers[qKey];
+
+                fbBox.style.display = 'block';
+
+                if (selected && selected.value === qData.correct) {
+                    score++;
+                    fbBox.className = 'feedback-box correct';
+                    fbBox.innerHTML = `<div class="feedback-title">✓ Correto!</div>${qData.exp}`;
+                } else {
+                    fbBox.className = 'feedback-box incorrect';
+                    const userVal = selected ? selected.value : 'Nenhuma';
+                    fbBox.innerHTML = `<div class="feedback-title">✗ Incorreto (Sua resposta: ${userVal} | Correta: ${qData.correct})</div>${qData.exp}`;
+                }
+            }
+
+            const resultsCard = document.getElementById('results-card');
+            const scoreDisplay = document.getElementById('score-display');
+            const summary = document.getElementById('feedback-summary');
+
+            scoreDisplay.textContent = `${score} / ${total}`;
+            const percentage = Math.round((score / total) * 100);
+
+            if (percentage >= 80) {
+                summary.textContent = `Excelente desempenho! (${percentage}%) Você demonstrou alto domínio dos conteúdos de Artes, Ciências, História e Geografia.`;
+            } else if (percentage >= 60) {
+                summary.textContent = `Bom trabalho! (${percentage}%) Você tem uma boa base, mas revise os tópicos com feedback incorreto para garantir a nota máxima.`;
+            } else {
+                summary.textContent = `Atenção e Foco! (${percentage}%) Aproveite os gabaritos explicativos abaixo para estudar novamente os temas com maior dificuldade.`;
+            }
+
+            resultsCard.style.display = 'block';
+            resultsCard.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        window.onload = startTimer;
+    </script>
+</body>
+</html>
