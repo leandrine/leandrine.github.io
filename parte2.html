@@ -1,0 +1,569 @@
+html_code = """<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simulado Preparatório - Parte 2: Linguagens e Matemática</title>
+    <style>
+        :root {
+            --primary: #1e3a8a;
+            --primary-light: #3b82f6;
+            --accent: #0284c7;
+            --bg: #f8fafc;
+            --card-bg: #ffffff;
+            --text: #1e293b;
+            --text-light: #64748b;
+            --success: #16a34a;
+            --error: #dc2626;
+            --border: #e2e8f0;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+            padding-bottom: 60px;
+        }
+
+        header {
+            background-color: var(--primary);
+            color: white;
+            padding: 24px 20px;
+            text-align: center;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        header h1 {
+            font-size: 1.5rem;
+            margin-bottom: 6px;
+        }
+
+        header p {
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+
+        .status-bar {
+            background-color: #0f172a;
+            color: white;
+            padding: 12px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-weight: 600;
+            font-size: 0.95rem;
+            position: sticky;
+            top: 75px;
+            z-index: 99;
+        }
+
+        .timer {
+            color: #f59e0b;
+            font-family: monospace;
+            font-size: 1.1rem;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 24px auto;
+            padding: 0 16px;
+        }
+
+        .section-header {
+            background-color: var(--primary-light);
+            color: white;
+            padding: 12px 18px;
+            border-radius: 8px;
+            margin: 32px 0 16px 0;
+            font-size: 1.2rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .question-card {
+            background: var(--card-bg);
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            border: 1px solid var(--border);
+        }
+
+        .question-card h3 {
+            font-size: 1rem;
+            color: var(--primary);
+            margin-bottom: 12px;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .text-box {
+            background-color: #f1f5f9;
+            border-left: 4px solid var(--accent);
+            padding: 12px 16px;
+            margin-bottom: 16px;
+            font-style: italic;
+            border-radius: 0 6px 6px 0;
+            font-size: 0.95rem;
+        }
+
+        .options {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-top: 14px;
+        }
+
+        .option-label {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            padding: 12px 14px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .option-label:hover {
+            background-color: #f8fafc;
+            border-color: var(--primary-light);
+        }
+
+        .option-label input {
+            margin-top: 4px;
+        }
+
+        .feedback {
+            margin-top: 16px;
+            padding: 14px;
+            border-radius: 8px;
+            display: none;
+            font-size: 0.95rem;
+        }
+
+        .feedback.correct {
+            background-color: #dcfce7;
+            color: #15803d;
+            border: 1px solid #86efac;
+        }
+
+        .feedback.incorrect {
+            background-color: #fee2e2;
+            color: #b91c1c;
+            border: 1px solid #fca5a5;
+        }
+
+        .redacao-section {
+            background: var(--card-bg);
+            border-radius: 10px;
+            padding: 24px;
+            margin-top: 24px;
+            border: 1px solid var(--border);
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        textarea {
+            width: 100%;
+            height: 220px;
+            padding: 14px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            font-size: 1rem;
+            margin-top: 12px;
+            resize: vertical;
+            line-height: 1.5;
+        }
+
+        textarea:focus {
+            outline: none;
+            border-color: var(--primary-light);
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+        }
+
+        .btn-submit {
+            display: block;
+            width: 100%;
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            padding: 16px;
+            font-size: 1.1rem;
+            font-weight: 700;
+            border-radius: 8px;
+            cursor: pointer;
+            margin-top: 32px;
+            transition: background 0.2s;
+        }
+
+        .btn-submit:hover {
+            background-color: #1d4ed8;
+        }
+
+        .results-panel {
+            display: none;
+            background: var(--card-bg);
+            border-radius: 12px;
+            padding: 28px;
+            margin-top: 32px;
+            text-align: center;
+            border: 2px solid var(--primary-light);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+
+        .results-panel h2 {
+            color: var(--primary);
+            margin-bottom: 12px;
+        }
+
+        .score-display {
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: var(--accent);
+            margin: 16px 0;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>Simulado Preparatório - Parte 2</h1>
+        <p>Língua Portuguesa, Redação, Inglês e Matemática (Nível Avançado / 12 Anos)</p>
+    </header>
+
+    <div class="status-bar">
+        <div>Progresso: <span id="progress">0</span> / 15 Questões Respondidas</div>
+        <div>Tempo Restante: <span id="timer" class="timer">01:40:00</span></div>
+    </div>
+
+    <div class="container">
+        <form id="simuladoForm">
+
+            <!-- PORTUGUÊS -->
+            <div class="section-header">📚 Língua Portuguesa</div>
+
+            <div class="question-card" id="q1">
+                <h3>Questão 1 <span>[Sintaxe e Regência]</span></h3>
+                <div class="text-box">
+                    "O cientista assistiu ____ experiência com atenção e aspirava ____ um resultado promissor há meses."
+                </div>
+                <p>Assinale a alternativa que preenche corretamente e respectivamente as lacunas acima, segundo a norma-padrão de regência verbal:</p>
+                <div class="options">
+                    <label class="option-label"><input type="radio" name="q1" value="A"> a) a - a</label>
+                    <label class="option-label"><input type="radio" name="q1" value="B"> b) à - a</label>
+                    <label class="option-label"><input type="radio" name="q1" value="C"> c) à - ao</label>
+                    <label class="option-label"><input type="radio" name="q1" value="D"> d) a - ao</label>
+                </div>
+                <div class="feedback" id="fb-q1"></div>
+            </div>
+
+            <div class="question-card" id="q2">
+                <h3>Questão 2 <span>[Coesão e Coerência]</span></h3>
+                <div class="text-box">
+                    "O projeto de reflorestamento é extremamente ambicioso. ______, exige um investimento expressivo; ______, traz benefícios inestimáveis ao meio ambiente no longo prazo."
+                </div>
+                <p>Quais conectivos preenchem de forma lógica e coesa as lacunas?</p>
+                <div class="options">
+                    <label class="option-label"><input type="radio" name="q2" value="A"> a) Portanto — contudo</label>
+                    <label class="option-label"><input type="radio" name="q2" value="B"> b) Por um lado — todavia</label>
+                    <label class="option-label"><input type="radio" name="q2" value="C"> c) Embora — visto que</label>
+                    <label class="option-label"><input type="radio" name="q2" value="D"> d) Porque — consequentemente</label>
+                </div>
+                <div class="feedback" id="fb-q2"></div>
+            </div>
+
+            <div class="question-card" id="q3">
+                <h3>Questão 3 <span>[Figuras de Linguagem]</span></h3>
+                <p>Na frase <em>"A cidade luz acordou com o sussurro do vento entre as árvores e o rugido suave do tráfego matinal"</em>, identificam-se, respectivamente, quais figuras de linguagem?</p>
+                <div class="options">
+                    <label class="option-label"><input type="radio" name="q3" value="A"> a) Metonímia, Metáfora e Antítese</label>
+                    <label class="option-label"><input type="radio" name="q3" value="B"> b) Antonomásia (Metonímia), Personificação (Prosopopeia) e Oxímoro/Metáfora</label>
+                    <label class="option-label"><input type="radio" name="q3" value="C"> c) Hipérbole, Eufemismo e Pleonasmo</label>
+                    <label class="option-label"><input type="radio" name="q3" value="D"> d) Comparação, Ironia e Catacrese</label>
+                </div>
+                <div class="feedback" id="fb-q3"></div>
+            </div>
+
+            <div class="question-card" id="q4">
+                <h3>Questão 4 <span>[Crase e Pontuação]</span></h3>
+                <p>Assinale a alternativa em que o uso do sinal indicativo de crase está <strong>totalmente correto</strong>:</p>
+                <div class="options">
+                    <label class="option-label"><input type="radio" name="q4" value="A"> a) Entregamos o relatório à uma comissão técnica ontem à noite.</label>
+                    <label class="option-label"><input type="radio" name="q4" value="B"> b) Ele começou à discursar à medida que os convidados chegavam.</label>
+                    <label class="option-label"><input type="radio" name="q4" value="C"> c) Refiro-me à diretora da instituição, que foi à reunião disposta a colaborar.</label>
+                    <label class="option-label"><input type="radio" name="q4" value="D"> d) Fomos à pé até à praia para assistir à chegada dos barcos.</label>
+                </div>
+                <div class="feedback" id="fb-q4"></div>
+            </div>
+
+            <div class="question-card" id="q5">
+                <h3>Questão 5 <span>[Tipologia Textual]</span></h3>
+                <p>Um texto que apresenta argumentos fundados em dados, premissas lógicas e contra-argumentações a fim de persuadir o leitor sobre determinado ponto de vista pertence predominantemente à tipologia:</p>
+                <div class="options">
+                    <label class="option-label"><input type="radio" name="q5" value="A"> a) Narrativa</label>
+                    <label class="option-label"><input type="radio" name="q5" value="B"> b) Descritiva</label>
+                    <label class="option-label"><input type="radio" name="q5" value="C"> c) Dissertativo-Argumentativa</label>
+                    <label class="option-label"><input type="radio" name="q5" value="D"> d) Injuntiva</label>
+                </div>
+                <div class="feedback" id="fb-q5"></div>
+            </div>
+
+
+            <!-- INGLÊS -->
+            <div class="section-header">🇬🇧 Inglês</div>
+
+            <div class="question-card" id="q6">
+                <h3>Questão 6 <span>[Reading Comprehension]</span></h3>
+                <div class="text-box">
+                    "Artificial Intelligence is rapidly evolving, reshaping industries and daily routines. While automation enhances efficiency, critics argue that over-reliance on algorithms might diminish human critical thinking skills."
+                </div>
+                <p>According to the text, what is a potential concern regarding Artificial Intelligence?</p>
+                <div class="options">
+                    <label class="option-label"><input type="radio" name="q6" value="A"> a) It decreases operational efficiency in industries.</label>
+                    <label class="option-label"><input type="radio" name="q6" value="B"> b) Excessive dependence on algorithms could weaken human critical reasoning.</label>
+                    <label class="option-label"><input type="radio" name="q6" value="C"> c) It will completely replace human workers next year.</label>
+                    <label class="option-label"><input type="radio" name="q6" value="D"> d) AI algorithms are becoming less accurate over time.</label>
+                </div>
+                <div class="feedback" id="fb-q6"></div>
+            </div>
+
+            <div class="question-card" id="q7">
+                <h3>Questão 7 <span>[Grammar - Conditionals]</span></h3>
+                <p>Complete the sentence correctly: <em>"If the students ______ more time, they ______ the complex mathematical project yesterday."</em></p>
+                <div class="options">
+                    <label class="option-label"><input type="radio" name="q7" value="A"> a) have / will finish</label>
+                    <label class="option-label"><input type="radio" name="q7" value="B"> b) had / would finish</label>
+                    <label class="option-label"><input type="radio" name="q7" value="C"> c) had had / would have finished</label>
+                    <label class="option-label"><input type="radio" name="q7" value="D"> d) have had / finished</label>
+                </div>
+                <div class="feedback" id="fb-q7"></div>
+            </div>
+
+            <div class="question-card" id="q8">
+                <h3>Questão 8 <span>[Vocabulary & Modal Verbs]</span></h3>
+                <p>Which sentence expresses a strict obligation or legal necessity?</p>
+                <div class="options">
+                    <label class="option-label"><input type="radio" name="q8" value="A"> a) You should wear a helmet when riding a bike.</label>
+                    <label class="option-label"><input type="radio" name="q8" value="B"> b) All passengers must fasten their seatbelts before takeoff.</label>
+                    <label class="option-label"><input type="radio" name="q8" value="C"> c) They might participate in the tournament tomorrow.</label>
+                    <label class="option-label"><input type="radio" name="q8" value="D"> d) We could visit the museum if it reopens.</label>
+                </div>
+                <div class="feedback" id="fb-q8"></div>
+            </div>
+
+            <div class="question-card" id="q9">
+                <h3>Questão 9 <span>[Relative Pronouns]</span></h3>
+                <p>Choose the correct relative pronoun to complete: <em>"The engineer ______ design won the international award was invited to speak at the summit."</em></p>
+                <div class="options">
+                    <label class="option-label"><input type="radio" name="q9" value="A"> a) who</label>
+                    <label class="option-label"><input type="radio" name="q9" value="B"> b) which</label>
+                    <label class="option-label"><input type="radio" name="q9" value="C"> c) whose</label>
+                    <label class="option-label"><input type="radio" name="q9" value="D"> d) whom</label>
+                </div>
+                <div class="feedback" id="fb-q9"></div>
+            </div>
+
+            <div class="question-card" id="q10">
+                <h3>Questão 10 <span>[Connectors & Contrast]</span></h3>
+                <p>Which word correctly completes the sentence expressing contrast: <em>"______ it was raining heavily, the athletic tournament continued as scheduled."</em></p>
+                <div class="options">
+                    <label class="option-label"><input type="radio" name="q10" value="A"> a) Despite</label>
+                    <label class="option-label"><input type="radio" name="q10" value="B"> b) Although</label>
+                    <label class="option-label"><input type="radio" name="q10" value="C"> c) Because</label>
+                    <label class="option-label"><input type="radio" name="q10" value="D"> d) Therefore</label>
+                </div>
+                <div class="feedback" id="fb-q10"></div>
+            </div>
+
+
+            <!-- MATEMÁTICA -->
+            <div class="section-header">📐 Matemática</div>
+
+            <div class="question-card" id="q11">
+                <h3>Questão 11 <span>[Álgebra e Equações]</span></h3>
+                <p>Resolva a equação de primeiro grau: <strong>4(x - 3) + 2 = 2(x + 5)</strong>. O valor de <em>x</em> é:</p>
+                <div class="options">
+                    <label class="option-label"><input type="radio" name="q11" value="A"> a) x = 8</label>
+                    <label class="option-label"><input type="radio" name="q11" value="B"> b) x = 10</label>
+                    <label class="option-label"><input type="radio" name="q11" value="C"> c) x = 12</label>
+                    <label class="option-label"><input type="radio" name="q11" value="D"> d) x = 14</label>
+                </div>
+                <div class="feedback" id="fb-q11"></div>
+            </div>
+
+            <div class="question-card" id="q12">
+                <h3>Questão 12 <span>[Geometria e Área]</span></h3>
+                <p>Um terreno retangular possui comprimento equivalente ao triplo de sua largura. Sabendo que o perímetro do terreno é de 80 metros, qual é a sua área total em metros quadrados (m²)?</p>
+                <div class="options">
+                    <label class="option-label"><input type="radio" name="q12" value="A"> a) 300 m²</label>
+                    <label class="option-label"><input type="radio" name="q12" value="B"> b) 240 m²</label>
+                    <label class="option-label"><input type="radio" name="q12" value="C"> c) 180 m²</label>
+                    <label class="option-label"><input type="radio" name="q12" value="D"> d) 400 m²</label>
+                </div>
+                <div class="feedback" id="fb-q12"></div>
+            </div>
+
+            <div class="question-card" id="q13">
+                <h3>Questão 13 <span>[Razão, Proporção e Porcentagem]</span></h3>
+                <p>Em uma competição esportiva, 35% dos participantes jogam tênis ou pickleball, e o restante pratica atletismo. Se há 130 atletas no atletismo, qual é o número total de participantes do torneio?</p>
+                <div class="options">
+                    <label class="option-label"><input type="radio" name="q13" value="A"> a) 180</label>
+                    <label class="option-label"><input type="radio" name="q13" value="B"> b) 200</label>
+                    <label class="option-label"><input type="radio" name="q13" value="C"> c) 220</label>
+                    <label class="option-label"><input type="radio" name="q13" value="D"> d) 250</label>
+                </div>
+                <div class="feedback" id="fb-q13"></div>
+            </div>
+
+            <div class="question-card" id="q14">
+                <h3>Questão 14 <span>[Estatística e Média]</span></h3>
+                <p>Um aluno obteve as seguintes notas em quatro avaliações de Matemática: 6.5, 7.0, 8.5 e 9.0. Qual nota ele precisa tirar na quinta e última avaliação para alcançar uma média ponderada final de exatamente 8.0, sabendo que todas as provas têm o mesmo peso?</p>
+                <div class="options">
+                    <label class="option-label"><input type="radio" name="q14" value="A"> a) 8.5</label>
+                    <label class="option-label"><input type="radio" name="q14" value="B"> b) 9.0</label>
+                    <label class="option-label"><input type="radio" name="q14" value="C"> c) 9.5</label>
+                    <label class="option-label"><input type="radio" name="q14" value="D"> d) 10.0</label>
+                </div>
+                <div class="feedback" id="fb-q14"></div>
+            </div>
+
+            <div class="question-card" id="q15">
+                <h3>Questão 15 <span>[Potenciação e Notação Científica]</span></h3>
+                <p>Qual é o valor simplificado da expressão matemática <strong>(2³ × 2⁵) ÷ 2⁴</strong> expresso em forma decimal?</p>
+                <div class="options">
+                    <label class="option-label"><input type="radio" name="q15" value="A"> a) 8</label>
+                    <label class="option-label"><input type="radio" name="q15" value="B"> b) 16</label>
+                    <label class="option-label"><input type="radio" name="q15" value="C"> c) 32</label>
+                    <label class="option-label"><input type="radio" name="q15" value="D"> d) 64</label>
+                </div>
+                <div class="feedback" id="fb-q15"></div>
+            </div>
+
+
+            <!-- REDAÇÃO -->
+            <div class="section-header">✍️ Proposta de Redação</div>
+
+            <div class="redacao-section">
+                <h3>Tema: "O Impacto da Inteligência Artificial e da Tecnologia no Aprendizado dos Jovens"</h3>
+                <br>
+                <p><strong>Instruções:</strong></p>
+                <ul style="margin-left: 20px; margin-top: 8px; font-size: 0.95rem;">
+                    <li>Escreva um texto dissertativo-argumentativo sustentando um ponto de vista claro.</li>
+                    <li>Apresente argumentos estruturados com introdução, desenvolvimento e conclusão.</li>
+                    <li>Utilize norma-padrão da língua portuguesa (mínimo de 15 linhas recomendadas).</li>
+                </ul>
+                <textarea placeholder="Digite sua redação aqui para registro e avaliação..."></textarea>
+            </div>
+
+            <button type="button" class="btn-submit" onclick="corrigirSimulado()">Corrigir Simulado e Ver Gabarito</button>
+
+        </form>
+
+        <div class="results-panel" id="resultsPanel">
+            <h2>Resultado Final do Simulado</h2>
+            <p>Confira seu desempenho nas questões objetivas:</p>
+            <div class="score-display" id="scoreText">0 / 15</div>
+            <p id="performanceMsg" style="font-weight: 600; font-size: 1.1rem; color: var(--text-light);"></p>
+        </div>
+    </div>
+
+    <script>
+        const answers = {
+            q1: { ans: 'C', exp: 'O verbo "assistir" no sentido de presenciar exige preposição "a" (assistiu à experiência). O verbo "aspirar" no sentido de almejar/desejar exige preposição "a" (aspirava ao resultado).' },
+            q2: { ans: 'B', exp: '"Por um lado" apresenta o primeiro aspecto (alto custo), enquanto "todavia" introduce o contraponto adversativo (benefícios a longo prazo).' },
+            q3: { ans: 'B', exp: '"Cidade luz" é antonomásia/metonímia. "Sussurro do vento" atribui ação humana ao vento (prosopopeia). "Rugido suave" traz aproximação metafórica/oxímoro.' },
+            q4: { ans: 'C', exp: 'Em "à diretora" e "à reunião" há fusão da preposição "a" com o artigo definido "a". Não se usa crase antes de artigo indefinido ("uma") nem antes de verbo ("discursar").' },
+            q5: { ans: 'C', exp: 'A tipologia dissertativo-argumentativa tem como objetivo central persuadir o leitor por meio de tese e argumentos encadeados.' },
+            q6: { ans: 'B', exp: 'O texto afirma explicitamente que "over-reliance on algorithms might diminish human critical thinking skills".' },
+            q7: { ans: 'C', exp: 'Third Conditional (situação hipotética no passado): If + Past Perfect (had had) + would have + Past Participle (would have finished).' },
+            q8: { ans: 'B', exp: 'O verbo modal "must" expressa obrigação estrita e regra/lei formal ("must fasten their seatbelts").' },
+            q9: { ans: 'C', exp: 'O pronome relativo "whose" indica posse ("cujo projeto" / "whose design").' },
+            q10: { ans: 'B', exp: '"Although" é uma conjunção concessiva seguida de oração completa ("it was raining heavily"). "Despite" exigiria substantivo ou gerúndio.' },
+            q11: { ans: 'B', exp: '4x - 12 + 2 = 2x + 10  =>  4x - 10 = 2x + 10  =>  2x = 20  =>  x = 10.' },
+            q12: { ans: 'A', exp: 'Largura = x, Comprimento = 3x. Perímetro = 2(x + 3x) = 8x = 80m  =>  x = 10m. Dimensões: 10m e 30m. Área = 10 * 30 = 300 m².' },
+            q13: { ans: 'B', exp: 'Se 35% jogam tênis/pickleball, 65% praticam atletismo. 65% de N = 130  =>  0.65 * N = 130  =>  N = 130 / 0.65 = 200 participantes.' },
+            q14: { ans: 'B', exp: 'Soma atual = 6.5 + 7.0 + 8.5 + 9.0 = 31.0. Para média 8.0 em 5 provas, a soma total deve ser 5 * 8.0 = 40.0. Nota necessária: 40 - 31 = 9.0.' },
+            q15: { ans: 'B', exp: '(2³ × 2⁵) ÷ 2⁴ = 2³⁺⁵⁻⁴ = 2⁴ = 16.' }
+        };
+
+        // Atualização de progresso
+        const inputs = document.querySelectorAll('input[type="radio"]');
+        inputs.forEach(input => {
+            input.addEventListener('change', () => {
+                const answeredCount = new Set([...document.querySelectorAll('input[type="radio"]:checked')].map(i => i.name)).size;
+                document.getElementById('progress').innerText = answeredCount;
+            });
+        });
+
+        // Cronômetro de 1h 40m (6000 segundos)
+        let timeLeft = 6000;
+        const timerElement = document.getElementById('timer');
+        
+        const timerInterval = setInterval(() => {
+            if (timeLeft <= 0) {
+                clearInterval(timerInterval);
+                alert("O tempo do simulado acabou!");
+                corrigirSimulado();
+                return;
+            }
+            timeLeft--;
+            const hours = Math.floor(timeLeft / 3600);
+            const minutes = Math.floor((timeLeft % 3600) / 60);
+            const seconds = timeLeft % 60;
+            timerElement.innerText = 
+                `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+        }, 1000);
+
+        function corrigirSimulado() {
+            let score = 0;
+            const total = Object.keys(answers).length;
+
+            for (let q in answers) {
+                const selected = document.querySelector(`input[name="${q}"]:checked`);
+                const feedbackEl = document.getElementById(`fb-${q}`);
+                feedbackEl.style.display = 'block';
+
+                if (selected && selected.value === answers[q].ans) {
+                    score++;
+                    feedbackEl.className = 'feedback correct';
+                    feedbackEl.innerHTML = `<strong>R: Correto!</strong> ${answers[q].exp}`;
+                } else {
+                    feedbackEl.className = 'feedback incorrect';
+                    feedbackEl.innerHTML = `<strong>R: Incorreto.</strong> Resposta correta: <strong>${answers[q].ans}</strong>.<br>${answers[q].exp}`;
+                }
+            }
+
+            const resultsPanel = document.getElementById('resultsPanel');
+            resultsPanel.style.display = 'block';
+            document.getElementById('scoreText').innerText = `${score} / ${total}`;
+
+            const percent = (score / total) * 100;
+            let msg = "";
+            if (percent >= 85) msg = "Excelente desempenho! Domínio avançado dos conteúdos.";
+            else if (percent >= 65) msg = "Bom resultado! Revise as questões que errou para consolidar o aprendizado.";
+            else msg = "Continue praticando! Foque na revisão dos tópicos com maior dificuldade.";
+            
+            document.getElementById('performanceMsg').innerText = msg;
+            resultsPanel.scrollIntoView({ behavior: 'smooth' });
+        }
+    </script>
+</body>
+</html>
+"""
+
+with open("simulado_parte2.html", "w", encoding="utf-8") as f:
+    f.write(html_code)
+
+print("Arquivo simulado_parte2.html gerado com sucesso!")
