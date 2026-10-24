@@ -1,52 +1,470 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Image Presentation</title>
-    <style>
-        body {
-            margin: 0;
-            padding: 0;
-            background-color: #121212;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-        }
-        .container {
-            max-width: 90vw;
-            max-height: 95vh;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
-            border-radius: 8px;
-            overflow: hidden;
-            background-color: #1e1e1e;
-            display: flex;
-            flex-direction: column;
-        }
-        img {
-            max-width: 100%;
-            max-height: 85vh;
-            object-fit: contain;
-            display: block;
-        }
-        .caption {
-            padding: 15px;
-            color: #e0e0e0;
-            text-align: center;
-            font-size: 1rem;
-            background-color: #1e1e1e;
-        }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VT100 — unix-80</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=VT323&display=swap');
+
+  :root {
+    --bg: #0a0a0a;
+    --fg: #33ff66;
+    --dim: #1a8c3a;
+    --amber: #ffb000;
+    --cursor: #33ff66;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: #000;
+    color: var(--fg);
+    font-family: 'VT323', 'Courier New', monospace;
+    font-size: 18px;
+    line-height: 1.35;
+    height: 100vh;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* CRT scanlines + slight glow */
+  body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    background: repeating-linear-gradient(
+      0deg,
+      rgba(0,0,0,0.15) 0px,
+      rgba(0,0,0,0.15) 1px,
+      transparent 1px,
+      transparent 2px
+    );
+    pointer-events: none;
+    z-index: 100;
+  }
+
+  #bezel {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    max-width: 920px;
+    width: 100%;
+    margin: 0 auto;
+    border: 12px solid #222;
+    border-radius: 8px;
+    box-shadow: 0 0 40px rgba(51,255,102,0.15), inset 0 0 60px rgba(0,0,0,0.8);
+    background: var(--bg);
+    overflow: hidden;
+  }
+
+  #header {
+    background: #111;
+    color: var(--dim);
+    padding: 4px 12px;
+    font-size: 16px;
+    border-bottom: 1px solid #222;
+    display: flex;
+    justify-content: space-between;
+    letter-spacing: 1px;
+  }
+
+  #screen {
+    flex: 1;
+    padding: 12px 16px;
+    overflow-y: auto;
+    white-space: pre-wrap;
+    word-break: break-all;
+  }
+
+  #screen::-webkit-scrollbar { width: 8px; }
+  #screen::-webkit-scrollbar-track { background: #111; }
+  #screen::-webkit-scrollbar-thumb { background: #333; }
+
+  .line { margin: 0; }
+  .prompt { color: var(--fg); }
+  .output { color: var(--fg); }
+  .error { color: #ff5555; }
+  .dim { color: var(--dim); }
+  .amber { color: var(--amber); }
+
+  #input-line {
+    display: flex;
+    padding: 0 16px 12px;
+    align-items: center;
+  }
+
+  #prompt-span {
+    color: var(--fg);
+    white-space: nowrap;
+  }
+
+  #cmdline {
+    flex: 1;
+    background: transparent;
+    border: none;
+    outline: none;
+    color: var(--fg);
+    font-family: inherit;
+    font-size: inherit;
+    caret-color: var(--cursor);
+  }
+
+  /* second page overlay */
+  #viewer {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: #000;
+    z-index: 200;
+    flex-direction: column;
+  }
+
+  #viewer.active { display: flex; }
+
+  #viewer-bar {
+    background: #111;
+    color: var(--dim);
+    padding: 6px 14px;
+    font-size: 16px;
+    display: flex;
+    justify-content: space-between;
+    border-bottom: 1px solid #333;
+  }
+
+  #viewer-bar button {
+    background: transparent;
+    border: 1px solid var(--dim);
+    color: var(--fg);
+    font-family: inherit;
+    font-size: 16px;
+    padding: 2px 10px;
+    cursor: pointer;
+  }
+
+  #viewer-bar button:hover { background: #1a3a1a; }
+
+  #viewer-frame {
+    flex: 1;
+    border: none;
+    background: #0a0a0a;
+  }
+</style>
 </head>
 <body>
-
-    <div class="container">
-        <!-- Replace 'image_cAFnyB.png' with the actual path to your image file -->
-        <img src="20260328_122803.jpg" alt="Mural depicting the Virgin Mary with Salve Maria banner">
-        <div class="caption">Salve Maria</div>
+  <div id="bezel">
+    <div id="header">
+      <span>UNIX System V  •  vt100  •  tty1</span>
+      <span id="clock"></span>
     </div>
+    <div id="screen"></div>
+    <div id="input-line">
+      <span id="prompt-span">user@unix-80:~/src$ </span>
+      <input id="cmdline" type="text" autocomplete="off" spellcheck="false" autofocus>
+    </div>
+  </div>
 
+  <div id="viewer">
+    <div id="viewer-bar">
+      <span>index134.html  —  generated page</span>
+      <button id="close-viewer">[ close ]</button>
+    </div>
+    <iframe id="viewer-frame"></iframe>
+  </div>
+
+<script>
+/* ─── filesystem simulation ─────────────────────────────────────── */
+const FS = {
+  "obscure_site.c": `/* 
+ * Obfuscated C generator for a minimal biblical-themed page.
+ * Theme: Nm 13.34 / Mt 13.34 / Jo 13.34
+ * Compile: gcc -o site obscure_site.c && ./site > index.html
+ */
+#include<stdio.h>
+#define _(a) putchar(a)
+#define __(s) fputs(s,stdout)
+#define Q(x) ((x)^0x5A)
+#define W(a,b) ((a)<<4|(b))
+char*z[]={
+"\\\\x3c\\\\x21\\\\x44\\\\x4f\\\\x43\\\\x54\\\\x59\\\\x50\\\\x45\\\\x20\\\\x68\\\\x74\\\\x6d\\\\x6c\\\\x3e",
+"\\\\x3c\\\\x68\\\\x74\\\\x6d\\\\x6c\\\\x20\\\\x6c\\\\x61\\\\x6e\\\\x67\\\\x3d\\\\x22\\\\x70\\\\x74\\\\x22\\\\x3e",
+"\\\\x3c\\\\x68\\\\x65\\\\x61\\\\x64\\\\x3e\\\\x3c\\\\x6d\\\\x65\\\\x74\\\\x61\\\\x20\\\\x63\\\\x68\\\\x61\\\\x72\\\\x73\\\\x65\\\\x74\\\\x3d\\\\x22\\\\x55\\\\x54\\\\x46\\\\x2d\\\\x38\\\\x22\\\\x3e",
+"\\\\x3c\\\\x74\\\\x69\\\\x74\\\\x6c\\\\x65\\\\x3e\\\\x31\\\\x33\\\\x2e\\\\x33\\\\x34\\\\x3c\\\\x2f\\\\x74\\\\x69\\\\x74\\\\x6c\\\\x65\\\\x3e",
+"\\\\x3c\\\\x73\\\\x74\\\\x79\\\\x6c\\\\x65\\\\x3e",
+"body{margin:0;background:#0a0a0a;color:#c8c8c8;font-family:Georgia,serif;display:flex;min-height:100vh;align-items:center;justify-content:center}",
+".box{max-width:420px;padding:2.5rem;border:1px solid #333;text-align:center}",
+"h1{font-size:1.1rem;letter-spacing:.3em;color:#888;font-weight:400;margin:0 0 2rem}",
+"p{line-height:1.7;margin:1.2rem 0;font-size:.95rem}",
+".ref{font-size:.7rem;color:#555;letter-spacing:.15em;margin-top:2.5rem}",
+"em{font-style:italic;color:#aaa}",
+"</style></head><body><div class=box>",
+"<h1>13&thinsp;.&thinsp;34</h1>",
+"<p>Parec&iacute;amos <em>gafanhotos</em>.</p>",
+"<p>Falou-lhes s&oacute; em <em>par&aacute;bolas</em>.</p>",
+"<p>Amai-vos uns aos outros<br>como eu vos amei.</p>",
+"<div class=ref>Nm&nbsp;13,34 &middot; Mt&nbsp;13,34 &middot; Jo&nbsp;13,34</div>",
+"</div></body></html>"
+};
+int main(void){
+int i=0;while(i<18){__(z[i++]);_('\\\\n');}
+return 0;
+}
+`,
+  "README": `UNIX-80  TERMINAL  SIMULATOR
+============================
+Available commands:
+  ls / dir             list files
+  cat <file>           show file contents
+  gcc <src> -o <bin>   "compile"
+  ./site               run the binary
+  ./site > index134.html
+  open index134.html   view the generated page
+  clear                clear screen
+  help                 this text
+  exit                 logout
+
+Theme of the C program:
+  Números 13,34  ·  Mateus 13,34  ·  João 13,34
+`
+};
+
+let binaries = {};          // compiled programs
+let generatedHTML = null;   // result of running the binary
+
+/* ─── DOM helpers ────────────────────────────────────────────────── */
+const screen   = document.getElementById("screen");
+const cmdline  = document.getElementById("cmdline");
+const promptSp = document.getElementById("prompt-span");
+const viewer   = document.getElementById("viewer");
+const frame    = document.getElementById("viewer-frame");
+const clockEl  = document.getElementById("clock");
+
+function print(text, cls = "output") {
+  const div = document.createElement("div");
+  div.className = "line " + cls;
+  div.textContent = text;
+  screen.appendChild(div);
+  screen.scrollTop = screen.scrollHeight;
+}
+
+function clearScreen() {
+  screen.innerHTML = "";
+}
+
+/* ─── boot message ───────────────────────────────────────────────── */
+function boot() {
+  print("UNIX System V  Release 3.2  (simulated)", "dim");
+  print("Copyright (c) 1986 AT&T", "dim");
+  print("");
+  print("login: user");
+  print("Password: ********");
+  print("");
+  print("Last login: Sat Oct 24 10:42 on tty1", "dim");
+  print("");
+  print("Welcome to unix-80.  Type 'help' for available commands.", "amber");
+  print("");
+}
+
+/* ─── command processor ──────────────────────────────────────────── */
+function process(cmd) {
+  const raw = cmd.trim();
+  if (!raw) return;
+
+  print(promptSp.textContent + raw);
+
+  const parts = raw.match(/(?:[^\s"]+|"[^"]*")+/g) || [];
+  const args  = parts.map(p => p.replace(/^"|"$/g, ""));
+  const c     = args[0].toLowerCase();
+
+  switch (c) {
+    case "help":
+    case "?":
+      print(FS["README"]);
+      break;
+
+    case "ls":
+    case "dir":
+      const files = Object.keys(FS).concat(Object.keys(binaries));
+      if (generatedHTML) files.push("index134.html");
+      print(files.join("  "));
+      break;
+
+    case "cat":
+      if (!args[1]) { print("cat: missing operand", "error"); break; }
+      if (args[1] === "index134.html" && generatedHTML) {
+        print(generatedHTML.slice(0, 500) + "\n... (truncated)");
+      } else if (FS[args[1]]) {
+        print(FS[args[1]]);
+      } else {
+        print(`cat: ${args[1]}: No such file or directory`, "error");
+      }
+      break;
+
+    case "clear":
+    case "cls":
+      clearScreen();
+      break;
+
+    case "gcc":
+    case "cc":
+      handleGcc(args);
+      break;
+
+    case "./site":
+    case "site":
+      handleRun(raw);
+      break;
+
+    case "open":
+    case "view":
+      if (args[1] === "index134.html" || args[1] === "./index134.html") {
+        if (generatedHTML) {
+          openViewer();
+        } else {
+          print("open: index134.html does not exist. Run the program first.", "error");
+        }
+      } else {
+        print(`open: ${args[1] || ""}: cannot open`, "error");
+      }
+      break;
+
+    case "exit":
+    case "logout":
+      print("logout");
+      print("Connection closed.", "dim");
+      cmdline.disabled = true;
+      break;
+
+    case "whoami":
+      print("user");
+      break;
+
+    case "pwd":
+      print("/home/user/src");
+      break;
+
+    case "date":
+      print(new Date().toString());
+      break;
+
+    case "echo":
+      print(args.slice(1).join(" "));
+      break;
+
+    default:
+      if (raw.startsWith("./")) {
+        print(`${args[0]}: command not found`, "error");
+      } else {
+        print(`${c}: command not found`, "error");
+      }
+  }
+}
+
+function handleGcc(args) {
+  let src = null, out = "a.out";
+  for (let i = 1; i < args.length; i++) {
+    if (args[i] === "-o" && args[i+1]) {
+      out = args[++i];
+    } else if (args[i].endsWith(".c")) {
+      src = args[i];
+    }
+  }
+
+  if (!src) {
+    print("gcc: no input files", "error");
+    return;
+  }
+  if (!FS[src]) {
+    print(`gcc: ${src}: No such file or directory`, "error");
+    return;
+  }
+
+  print(`gcc: compiling ${src} ...`, "dim");
+  setTimeout(() => {
+    binaries[out] = true;
+    print(`gcc: ${src} → ${out}  (ok)`, "amber");
+    print("");
+  }, 450);
+}
+
+function handleRun(raw) {
+  if (!binaries["site"] && !binaries["a.out"]) {
+    print("./site: No such file or directory  (compile first with gcc)", "error");
+    return;
+  }
+
+  const html = generateBiblicalPage();
+  generatedHTML = html;
+
+  if (raw.includes(">") || raw.includes("index134")) {
+    print("site: writing index134.html ...", "dim");
+    setTimeout(() => {
+      print("site: index134.html created.", "amber");
+      print("Type  open index134.html  to view it.", "dim");
+      print("");
+    }, 350);
+  } else {
+    print(html);
+  }
+}
+
+function generateBiblicalPage() {
+  return `<!DOCTYPE html>
+<html lang="pt">
+<head><meta charset="UTF-8">
+<title>13.34</title>
+<style>
+body{margin:0;background:#0a0a0a;color:#c8c8c8;font-family:Georgia,serif;display:flex;min-height:100vh;align-items:center;justify-content:center}
+.box{max-width:420px;padding:2.5rem;border:1px solid #333;text-align:center}
+h1{font-size:1.1rem;letter-spacing:.3em;color:#888;font-weight:400;margin:0 0 2rem}
+p{line-height:1.7;margin:1.2rem 0;font-size:.95rem}
+.ref{font-size:.7rem;color:#555;letter-spacing:.15em;margin-top:2.5rem}
+em{font-style:italic;color:#aaa}
+</style></head><body><div class=box>
+<h1>13&thinsp;.&thinsp;34</h1>
+<p>Parec&iacute;amos <em>gafanhotos</em>.</p>
+<p>Falou-lhes s&oacute; em <em>par&aacute;bolas</em>.</p>
+<p>Amai-vos uns aos outros<br>como eu vos amei.</p>
+<div class=ref>Nm&nbsp;13,34 &middot; Mt&nbsp;13,34 &middot; Jo&nbsp;13,34</div>
+</div></body></html>`;
+}
+
+function openViewer() {
+  frame.srcdoc = generatedHTML;
+  viewer.classList.add("active");
+}
+
+document.getElementById("close-viewer").addEventListener("click", () => {
+  viewer.classList.remove("active");
+  cmdline.focus();
+});
+
+/* ─── input handling ─────────────────────────────────────────────── */
+cmdline.addEventListener("keydown", e => {
+  if (e.key === "Enter") {
+    const val = cmdline.value;
+    cmdline.value = "";
+    process(val);
+  }
+});
+
+/* keep focus */
+document.addEventListener("click", () => {
+  if (!viewer.classList.contains("active")) cmdline.focus();
+});
+
+/* clock */
+function updateClock() {
+  const d = new Date();
+  clockEl.textContent = d.toLocaleTimeString("en-GB", { hour12: false });
+}
+setInterval(updateClock, 1000);
+updateClock();
+
+/* start */
+boot();
+cmdline.focus();
+</script>
 </body>
 </html>
